@@ -1,0 +1,10 @@
+Congratulations, {{ ngo_name }}!
+
+We are thrilled to inform you that your profile on Kindway has been successfully reviewed and verified by our team.
+
+You are now a trusted partner in our community. You can log in to your dashboard to manage your profile, post events, and start connecting with donors.
+
+Thank you for joining us in our mission to connect hearts, one donation at a time.
+
+Best regards,
+The Kindway Team

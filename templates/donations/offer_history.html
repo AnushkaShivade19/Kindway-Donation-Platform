@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+    
+{% block content %}
+<div class="container">
+    <h1 class="display-5 fw-bold mb-4">My Donation Offers</h1>
+    <p class="lead text-muted mb-4">This page shows the history of all direct donation offers you have sent to NGOs.</p>
+
+    <div class="card content-card">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th>Item Title</th>
+                        <th>Offered To</th>
+                        <th>Status</th>
+                        <th>Date Sent</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for offer in sent_offers %}
+                    <tr>
+                        <td>{{ offer.title }}</td>
+                        <td>{{ offer.ngo.ngoprofile.ngo_name }}</td>
+                        <td>
+                            {% if offer.status == 'PENDING' %}
+                                <span class="badge bg-warning text-dark">Pending</span>
+                            {% elif offer.status == 'ACCEPTED' %}
+                                <span class="badge bg-success">Accepted</span>
+                            {% elif offer.status == 'REJECTED' %}
+                                 <span class="badge bg-danger">Rejected</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ offer.created_at|date:"d M, Y" }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="4" class="text-center py-4">You have not sent any donation offers yet.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

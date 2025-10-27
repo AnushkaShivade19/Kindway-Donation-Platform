@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+    <h1 class="display-5 fw-bold mb-4">Available Donations</h1>
+
+    <div class="row g-4">
+        {% for donation in donations %}
+        <div class="col-md-4">
+            <div class="card h-100 content-card">
+                {% if donation.image %}
+                    <img src="{{ donation.image.url }}" class="card-img-top" alt="{{ donation.title }}" style="height: 200px; object-fit: cover;">
+                {% else %}
+                     <div class="bg-light d-flex align-items-center justify-content-center" style="height: 200px;">
+                         <i class="bi bi-gift fs-1 text-muted"></i>
+                    </div>
+                {% endif %}
+                <div class="card-body">
+                    <h5 class="card-title">{{ donation.title }}</h5>
+                    <p class="card-text">{{ donation.description|truncatewords:15 }}</p>
+                </div>
+                
+                <div class="card-footer bg-white border-top-0 d-flex justify-content-between align-items-center">
+                    <small class="text-muted">Category: {{ donation.category.name }}</small>
+                    
+                    {% if user.is_authenticated and user.user_type == 'NGO' and user.ngoprofile.verification_status == 'VERIFIED' %}
+                        <form action="{% url 'request_donation' donation.id %}" method="POST" class="d-inline">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-sm btn-success">Request Item</button>
+                        </form>
+                    {% else %}
+                        <!-- This link now points to the detail page -->
+                        <a href="{% url 'donation_detail' donation.id %}" class="btn btn-sm btn-primary">View Details</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% empty %}
+            <div class="col-12">
+                <div class="alert alert-info text-center fs-5">
+                    There are currently no available donations. Check back soon!
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

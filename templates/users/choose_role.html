@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8 mx-auto">
+        <div class="card content-card text-center p-4 p-md-5">
+            <h2 class="mb-3">One Last Step!</h2>
+            <p class="lead text-muted mb-4">Welcome to Kindway! To get started, please tell us how you'd like to use the platform.</p>
+
+            <div class="row mt-3">
+                <div class="col-md-6">
+                    <div class="card h-100">
+                        <div class="card-body d-flex flex-column">
+                            <i class="bi bi-heart-fill fs-1 text-primary"></i>
+                            <h4 class="mt-3">I want to Donate</h4>
+                            <p>I have items, food, or other resources to give to those in need.</p>
+                            <form action="{% url 'choose_user_role' %}" method="POST" class="mt-auto">
+                                {% csrf_token %}
+                                <input type="hidden" name="role" value="DONOR">
+                                <button type="submit" class="btn btn-primary btn-lg">I'm a Donor</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="card h-100">
+                        <div class="card-body d-flex flex-column">
+                            <i class="bi bi-shield-check fs-1 text-success"></i>
+                            <h4 class="mt-3">I Represent an NGO</h4>
+                            <p>My organization is looking for donations to support our cause.</p>
+                            
+                            <small class="d-block text-muted mb-3">You'll be directed to our full registration form for verification.</small>
+                            
+                            <form action="{% url 'choose_user_role' %}" method="POST" class="mt-auto">
+                                {% csrf_token %}
+                                <input type="hidden" name="role" value="NGO">
+                                <button type="submit" class="btn btn-success btn-lg">I'm an NGO</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

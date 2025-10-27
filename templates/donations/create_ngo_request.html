@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+{% load widget_tweaks %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card content-card p-4 p-md-5">
+            <h2 class="text-center mb-4">Post a New Need</h2>
+            <p class="text-center text-muted mb-4">Describe an item your organization currently needs. This will be visible to donors on the homepage and their dashboards.</p>
+
+            <form method="POST" novalidate>
+                {% csrf_token %}
+                
+                <div class="mb-3">
+                    <label class="form-label">{{ form.title.label }}</label>
+                    {% render_field form.title class="form-control form-control-lg" placeholder="e.g., Warm Blankets for Winter" %}
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">{{ form.description.label }}</label>
+                    {% render_field form.description class="form-control" %}
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">{{ form.category.label }}</label>
+                    {% render_field form.category class="form-select" %}
+                </div>
+
+                <button type="submit" class="btn btn-primary w-100 btn-lg mt-3">
+                    <i class="bi bi-megaphone-fill me-2"></i> Post My Need
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

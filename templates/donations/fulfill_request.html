@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+{% load widget_tweaks %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card content-card p-4 p-md-5">
+            <h2 class="text-center mb-4">Fulfill a Need</h2>
+
+            <div class="alert alert-info">
+                You are responding to a request from <strong>{{ ngo_request.ngo.ngoprofile.ngo_name }}</strong> for:
+                <h5 class="mt-2 mb-0">"{{ ngo_request.title }}"</h5>
+            </div>
+
+            <p class="text-center text-muted mb-4">Please describe the specific item you would like to offer.</p>
+
+            <form method="POST" enctype="multipart/form-data" novalidate>
+                {% csrf_token %}
+                
+                <div class="mb-3">
+                    <label class="form-label">{{ form.title.label }}</label>
+                    {% render_field form.title class="form-control form-control-lg" %}
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">{{ form.description.label }}</label>
+                    {% render_field form.description class="form-control" %}
+                </div>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">{{ form.category.label }}</label>
+                        {% render_field form.category class="form-select" %}
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">{{ form.image.label }} (Optional)</label>
+                        {% render_field form.image class="form-control" %}
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Delivery Preference</label>
+                    <div class="border rounded p-2">
+                        {{ form.delivery_type }}
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-success w-100 btn-lg mt-3">
+                    <i class="bi bi-send-check-fill me-2"></i> Send My Offer
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

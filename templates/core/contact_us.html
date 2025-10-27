@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+{% load widget_tweaks %} {# Load widget_tweaks for form styling #}
+
+{% block content %}
+<div class="row justify-content-center py-5 animate-on-scroll">
+    <div class="col-lg-8">
+        <div class="card content-card p-4 p-md-5">
+            <h1 class="display-5 fw-bold text-primary text-center mb-4">Contact Our Support Team</h1>
+            <p class="lead text-secondary text-center mb-5">Have questions about verification, a donation, or a partnership? We are here to help!</p>
+
+            <div class="row">
+                <div class="col-md-6 mb-4">
+                    <h5 class="text-primary"><i class="bi bi-envelope-fill me-2"></i> Email Us</h5>
+                    <p class="mb-0">support@kindway.in</p> {# Consider making this dynamic or using settings #}
+                    <p class="text-muted">We aim to respond within 24 hours.</p>
+                </div>
+                <div class="col-md-6 mb-4">
+                    <h5 class="text-primary"><i class="bi bi-telephone-fill me-2"></i> Call Us</h5>
+                    <p class="mb-0">+91 99887 76655</p> {# Consider making this dynamic or using settings #}
+                    <p class="text-muted">Available Mon-Fri, 9am - 5pm IST.</p>
+                </div>
+            </div>
+
+            <hr class="my-4">
+            
+            <h4 class="text-primary mb-3">Send Us a Message</h4>
+            <form method="POST" novalidate> {# Add novalidate #}
+                {% csrf_token %}
+                
+                <div class="mb-3">
+                    <label for="{{ form.name.id_for_label }}" class="form-label">Your Name</label>
+                    {# Render the field using widget_tweaks for Bootstrap classes #}
+                    {% render_field form.name class="form-control" placeholder="Your Full Name" %}
+                    {% for error in form.name.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+                </div>
+                
+                <div class="mb-3">
+                    <label for="{{ form.email.id_for_label }}" class="form-label">Your Email</label>
+                    {% render_field form.email class="form-control" placeholder="your.email@example.com" %}
+                     {% for error in form.email.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+                </div>
+                
+                <div class="mb-3">
+                    <label for="{{ form.message.id_for_label }}" class="form-label">Your Message</label>
+                    {% render_field form.message class="form-control" rows="5" placeholder="How can we help?" %}
+                     {% for error in form.message.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+                </div>
+                
+                <button type="submit" class="btn btn-primary btn-lg w-100 mt-3">Send Message</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

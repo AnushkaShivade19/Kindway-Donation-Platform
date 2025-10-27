@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+    
+{% block content %}
+<div class="container">
+    <h1 class="display-5 fw-bold mb-4">Incoming Donation Offers</h1>
+    <p class="lead text-muted mb-4">Review and respond to donation offers you have received from donors.</p>
+
+    <div class="card content-card">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th>Item Title</th>
+                        <th>From Donor</th>
+                        <th>Status</th>
+                        <th>Date Received</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for offer in received_offers %}
+                    <tr>
+                        <td>
+                            <a href="{% url 'offer_detail' offer.id %}">{{ offer.title }}</a>
+                        </td>
+                        <td>{{ offer.donor.donorprofile.full_name }}</td>
+                        <td>
+                            {% if offer.status == 'PENDING' %}
+                                <span class="badge bg-warning text-dark">Pending</span>
+                            {% elif offer.status == 'ACCEPTED' %}
+                                <span class="badge bg-success">Accepted</span>
+                            {% elif offer.status == 'REJECTED' %}
+                                 <span class="badge bg-danger">Rejected</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ offer.created_at|date:"d M, Y" }}</td>
+                        <td>
+                            {% if offer.status == 'PENDING' %}
+                                <form action="{% url 'update_offer_status' offer.id 'accept' %}" method="POST" class="d-inline">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-sm btn-success">Accept</button>
+                                </form>
+                                <form action="{% url 'update_offer_status' offer.id 'reject' %}" method="POST" class="d-inline">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-sm btn-danger">Reject</button>
+                                </form>
+                            {% else %}
+                                <span class="text-muted">Responded</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="text-center py-4">You have not received any donation offers yet.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

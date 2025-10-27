@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% load widget_tweaks %}
+
+{% block content %}
+<div class="row justify-content-center py-5 animate-on-scroll">
+    <div class="col-lg-8">
+        <div class="card content-card p-4 p-md-5">
+            <h1 class="display-5 fw-bold text-primary text-center mb-4">Share Your Kindness Story</h1>
+            <p class="lead text-secondary text-center mb-5">Your experience inspires others! Tell us about the donation you made and the impact it had.</p>
+
+            <form method="POST" novalidate>
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label class="form-label">Your Name</label>
+                    {% render_field form.name class="form-control" %}
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Your City</label>
+                    {% render_field form.city class="form-control" %}
+                </div>
+                <div class="mb-4">
+                    <label class="form-label">Your Story</label>
+                    {% render_field form.story_content class="form-control" rows="6" %}
+                    <div class="form-text">Your story may be featured on our homepage!</div>
+                </div>
+                
+                <button type="submit" class="btn btn-primary btn-lg w-100">Submit Story</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

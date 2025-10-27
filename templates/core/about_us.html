@@ -1,0 +1,95 @@
+{% extends 'base.html' %}
+{% load static %} {# <-- THIS LINE IS ESSENTIAL #}
+
+{% block content %}
+<style>
+    /* Custom styles for the About Us page */
+    .about-hero {
+        /* Sets a clean, solid background for the banner */
+        background-color: var(--primary-green);
+        color: white;
+        padding: 6rem 0;
+        text-align: center;
+        margin-bottom: 3rem;
+    }
+    .about-hero h1 {
+        font-size: 3.5rem;
+        font-weight: 700;
+    }
+    .image-showcase {
+        /* Creates a responsive grid for images */
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.5rem;
+        margin-top: 3rem;
+    }
+    .image-showcase img {
+        width: 100%;
+        height: 200px; /* Uniform height */
+        object-fit: cover;
+        border-radius: 12px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        transition: transform 0.3s ease;
+    }
+    .image-showcase img:hover {
+        transform: scale(1.02);
+    }
+    .mission-statement {
+        background-color: var(--light-bg);
+        padding: 3rem;
+        border-radius: 12px;
+        border-left: 6px solid var(--primary-green);
+    }
+</style>
+
+<div class="about-hero animate-on-scroll">
+    <div class="container">
+        <h1 class="mb-3">Our Story of Kindness</h1>
+        <p class="lead col-lg-8 mx-auto">Kindway is the trusted bridge connecting generosity with genuine community need, fostering a sustainable culture of giving.</p>
+    </div>
+</div>
+
+<div class="container py-5">
+    <div class="row justify-content-center g-5">
+        
+        {# LEFT COLUMN: Text Content #}
+        <div class="col-lg-6 animate-on-scroll">
+            <h2 class="text-primary fw-bold mb-4">Our Origin: Turning Intent into Impact</h2>
+            
+            <div class="briefing">
+                <p class="fs-5 text-dark">Kindway was born from a simple yet profound challenge: **the desire to donate often gets lost in the logistics and uncertainty of finding a trusted recipient.** We saw people with perfectly good items struggling to find local NGOs, and NGOs struggling to broadcast their specific needs to the community.</p>
+                <p class="text-secondary">We built Kindway to solve this by creating a **direct, verified, and transparent pathway**. We turn your unused items into powerful resources, ensuring every book, coat, or toy finds its second life where it can make the greatest difference.</p>
+            </div>
+            
+            <div class="mission-statement mt-5 animate-on-scroll">
+                <h3 class="text-primary">Our Core Mission</h3>
+                <p class="fs-5 fw-bold text-dark mb-0">To be the most trusted and efficient platform for item donations, empowering individuals to support verified local non-profits and build stronger, more sustainable communities.</p>
+            </div>
+        </div>
+        
+        {# RIGHT COLUMN: Image Showcase (Visual Storytelling) #}
+        <div class="col-lg-4 animate-on-scroll">
+            <h2 class="text-primary fw-bold mb-4">The Impact We Facilitate</h2>
+            <div class="image-showcase">
+                {# Using guaranteed paths from your file list #}
+                <img src="{% static 'images/food.jpg' %}" alt="Serving food for community impact">
+                <img src="{% static 'images/education.jpg' %}" alt="Children reading books for education">
+                <img src="{% static 'images/img.jpg' %}" alt="Hands planting tree for sustainability">
+                <img src="{% static 'images/sustainable.jpg' %}" alt="Sustainable donation process">
+            </div>
+        </div>
+    </div>
+    
+    {# FULL WIDTH SECTION: Why Trust Us #}
+    <div class="row justify-content-center mt-5 pt-4">
+        <div class="col-lg-10">
+            <h2 class="text-primary fw-bold mt-5 mb-4 animate-on-scroll">Why You Can Trust Kindway</h2>
+            <ul class="list-group list-group-flush fs-5 animate-on-scroll">
+                <li class="list-group-item py-3"><i class="bi bi-shield-check me-2 text-success fs-4"></i> **Verified Partners:** Every NGO on our platform undergoes a manual verification process, checking legal documents and status.</li>
+                <li class="list-group-item py-3"><i class="bi bi-geo-alt-fill me-2 text-primary fs-4"></i> **Local Impact:** Our location-based search ensures your donations benefit organizations near you, strengthening your local community.</li>
+                <li class="list-group-item py-3"><i class="bi bi-chat-dots-fill me-2 text-accent fs-4"></i> **Direct Communication:** The built-in chat system allows you to coordinate logistics directly with the NGO, eliminating uncertainty.</li>
+            </ul>
+        </div>
+    </div>
+</div>
+{% endblock %}

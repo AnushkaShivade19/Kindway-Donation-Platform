@@ -1,0 +1,13 @@
+# Python environments
+venv/
+__pycache__/
+*.pyc
+
+# Database
+db.sqlite3
+
+# Secret settings
+.env
+
+# Media files uploaded by users
+/media/

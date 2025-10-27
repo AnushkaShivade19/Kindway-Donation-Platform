@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h1 class="display-5 fw-bold">NGO Dashboard: {{ profile.ngo_name }}</h1>
+    <p class="lead text-muted mb-4">Manage your organization's presence and donation requests.</p>
+
+    {% if profile.verification_status == 'PENDING' %}
+        <div class="alert alert-warning d-flex align-items-center fs-5" role="alert">
+            <i class="bi bi-exclamation-triangle-fill me-3 fs-3"></i>
+            <div>
+                <strong>Your account is pending verification.</strong>
+                Our team is reviewing your application. You will be notified once approved.
+            </div>
+        </div>
+    
+    {% elif profile.verification_status == 'VERIFIED' %}
+        <div class="alert alert-success d-flex align-items-center fs-5" role="alert">
+            <i class="bi bi-check-circle-fill me-3 fs-3"></i>
+            <div>
+                <strong>Your account is verified!</strong>
+                You are now listed on Kindway and can receive donation requests.
+            </div>
+        </div>
+
+        <div class="row mt-4 g-4">
+            <div class="col-md-6 col-xl-3">
+                <div class="card content-card text-center p-4 h-100">
+                    <i class="bi bi-inboxes-fill fs-1 text-primary"></i>
+                    <h4 class="mt-3">Donation Offers</h4>
+                    <p>View and manage incoming donation offers from donors.</p>
+                    <a href="{% url 'ngo_offer_list' %}" class="btn btn-primary mt-auto">Manage Offers</a>
+                </div>
+            </div>
+            <div class="col-md-6 col-xl-3">
+                <div class="card content-card text-center p-4 h-100">
+                    <i class="bi bi-megaphone-fill fs-1 text-primary"></i>
+                    <h4 class="mt-3">Post a Need</h4>
+                    <p>Tell the community what items you currently need the most.</p>
+                    <a href="{% url 'create_ngo_request' %}" class="btn btn-outline-primary mt-auto">Post a Need</a>
+                </div>
+            </div>
+            
+            <div class="col-md-6 col-xl-3">
+                <div class="card content-card text-center p-4 h-100">
+                    <i class="bi bi-calendar-plus-fill fs-1 text-primary"></i>
+                    <h4 class="mt-3">Post an Event</h4>
+                    <p>Hosting a donation drive? Let the community know!</p>
+                    <a href="{% url 'create_event' %}" class="btn btn-outline-primary mt-auto">Create Event</a>
+                </div>
+            </div>
+            <div class="col-md-6 col-xl-3">
+                <div class="card content-card text-center p-4 h-100">
+                    <i class="bi bi-pencil-fill fs-1 text-primary"></i>
+                    <h4 class="mt-3">Edit Profile</h4>
+                    <p>Update your organization's mission, address, or needs.</p>
+                     <a href="{% url 'edit_ngo_profile' %}" class="btn btn-outline-primary mt-auto">Update Profile</a>
+                </div>
+            </div>
+        </div>
+
+    {% elif profile.verification_status == 'REJECTED' %}
+        <div class="alert alert-danger d-flex align-items-center fs-5" role="alert">
+            <i class="bi bi-x-circle-fill me-3 fs-3"></i>
+            <div>
+                <strong>Your application was rejected.</strong>
+                Please contact our support team for more information.
+            </div>
+        </div>
+    {% endif %}
+
+{% endblock %}

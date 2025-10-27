@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+{% load widget_tweaks %}
+
+{% block content %}
+<style>
+    /* Custom styles for the chat interface */
+    .chat-window {
+        height: 500px;
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column-reverse; /* Puts newest messages at the bottom */
+    }
+    .message {
+        max-width: 75%;
+        padding: 0.5rem 1rem;
+        border-radius: 1rem;
+        margin-bottom: 0.5rem;
+    }
+    .message-sent {
+        background-color: #0d6efd; /* Bootstrap primary blue */
+        color: white;
+        align-self: flex-end;
+        border-bottom-right-radius: 0;
+    }
+    .message-received {
+        background-color: #e9ecef; /* Bootstrap light grey */
+        align-self: flex-start;
+        border-bottom-left-radius: 0;
+    }
+</style>
+
+<div class="container">
+    <div class="card content-card">
+        <div class="card-header bg-light">
+            <h4 class="mb-0">
+                Chat about: {{ conversation.offer.title }}
+            </h4>
+            <p class="mb-0 text-muted">
+                {% for participant in conversation.participants.all %}
+                    {% if participant != request.user %}
+                        With: {{ participant.ngoprofile.ngo_name|default:participant.donorprofile.full_name }}
+                    {% endif %}
+                {% endfor %}
+            </p>
+        </div>
+
+        <div class="card-body p-4 chat-window">
+            <div class="d-flex flex-column">
+                {% for message in conversation.messages.all reversed %}
+                    <div class="message {% if message.sender == request.user %}message-sent{% else %}message-received{% endif %}">
+                        {{ message.content|linebreaksbr }}
+                        <div class="text-end mt-1" style="font-size: 0.75rem; opacity: 0.8;">
+                            {{ message.timestamp|date:"d M, H:i" }}
+                        </div>
+                    </div>
+                {% empty %}
+                    <p class="text-center text-muted">This is the beginning of your conversation.</p>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="card-footer bg-white">
+            <form method="POST" class="d-flex">
+                {% csrf_token %}
+                <div class="flex-grow-1 me-2">
+                    {% render_field form.content %}
+                </div>
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-send-fill"></i> Send
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Simple script to auto-scroll to the top (which is the bottom of the chat)
+    const chatWindow = document.querySelector('.chat-window');
+    chatWindow.scrollTop = 0;
+</script>
+
+{% endblock %}

@@ -1,0 +1,32 @@
+{% load socialaccount %}
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Login - KindWay</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+<div class="container mt-5 col-md-4">
+  <h2 class="text-center text-success mb-4">Login</h2>
+
+  <form method="POST">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" class="btn btn-success w-100">Login</button>
+  </form>
+
+  <div class="text-center mt-3">
+    <p>Or login using Google</p>
+    <a href="{% provider_login_url 'google' %}" class="btn btn-outline-danger w-100">
+      <img src="https://www.svgrepo.com/show/355037/google.svg" width="20" class="me-2">
+      Login with Google
+    </a>
+  </div>
+
+  <div class="text-center mt-3">
+    <a href="{% url 'register_donor' %}">Register as Donor</a> |
+    <a href="{% url 'register_ngo' %}">Register as NGO</a>
+  </div>
+</div>
+</body>
+</html>

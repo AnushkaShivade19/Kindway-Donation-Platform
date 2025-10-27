@@ -1,0 +1,77 @@
+{% extends 'base.html' %}
+{% load widget_tweaks %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card content-card p-4 p-md-5">
+                
+                {% if state == 'show_ngos' %}
+                    <h2 class="text-center mb-4">Step 2: Choose an NGO to Receive Your Offer</h2>
+                    <p class="text-center text-muted mb-4">Based on your item and location, here are the nearby NGOs that can accept your donation.</p>
+
+                    {% if nearby_ngos %}
+                        <ul class="list-group">
+                            {% for item in nearby_ngos %}
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h5 class="mb-1">{{ item.user.ngoprofile.ngo_name }}</h5>
+                                    <small class="text-muted">{{ item.user.ngoprofile.address }}</small>
+                                </div>
+                                <div class="text-end">
+                                    <span class="badge bg-primary rounded-pill me-3">{{ item.distance }} km</span>
+                                    <form action="{% url 'send_offer_to_ngo' item.user.id %}" method="POST" class="d-inline">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-sm btn-success">Send Offer</button>
+                                    </form>
+                                </div>
+                            </li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <div class="alert alert-warning">No verified NGOs were found in your area that accept this category. You could try listing it as a public donation instead.</div>
+                    {% endif %}
+                    <a href="{% url 'offer_donation_flow' %}" class="btn btn-outline-secondary mt-4">Start Over</a>
+
+                {% else %}
+                    <h2 class="text-center mb-4">Make a Direct Donation Offer</h2>
+                    <p class="text-center text-muted mb-4">Fill out your item's details, and we'll help you find a local NGO to give it to.</p>
+                    
+                    <form method="POST" enctype="multipart/form-data" novalidate>
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label class="form-label">{{ form.title.label }}</label>
+                            {% render_field form.title class="form-control form-control-lg" %}
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">{{ form.description.label }}</label>
+                            {% render_field form.description class="form-control" %}
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">{{ form.category.label }}</label>
+                                {% render_field form.category class="form-select" %}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">{{ form.image.label }} (Optional)</label>
+                                {% render_field form.image class="form-control" %}
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Delivery Preference</label>
+                            <div class="border rounded p-2">
+                                {{ form.delivery_type }}
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary w-100 btn-lg mt-3">
+                            <i class="bi bi-search me-2"></i> Find Nearby NGOs
+                        </button>
+                    </form>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+{% load widget_tweaks %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card content-card p-4 p-md-5">
+            <h2 class="text-center mb-4">Post a New Volunteer Event</h2>
+            <p class="text-center text-muted mb-4">Let the community know about your upcoming events and find volunteers to help support your cause.</p>
+
+            <form method="POST" novalidate>
+                {% csrf_token %}
+                
+                <div class="mb-3">
+                    <label class="form-label">{{ form.title.label }}</label>
+                    {% render_field form.title class="form-control form-control-lg" placeholder="e.g., Annual Food Drive" %}
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">{{ form.description.label }}</label>
+                    {% render_field form.description class="form-control" rows="5" %}
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">{{ form.location.label }}</label>
+                        {% render_field form.location class="form-control" placeholder="e.g., City Park, Main Street" %}
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">{{ form.event_date.label }}</label>
+                        {% render_field form.event_date class="form-control" %}
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary w-100 btn-lg mt-3">
+                    <i class="bi bi-calendar-plus-fill me-2"></i> Post Event
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

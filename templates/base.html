@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kindway - Donate with Purpose</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    
+    <style>
+        /* New Aesthetic Color Palette & Typography */
+        :root {
+            --primary-green: #198754; /* A deep, trustworthy green */
+            --dark-green: #146c43;
+            --accent-orange: #fd7e14; /* A vibrant, action-oriented orange */
+            --light-bg: #f8f9fa;   /* Soft off-white for sections */
+            --white: #FFFFFF;
+            --dark-text: #212529;
+            --secondary-text: #6c757d;
+            --font-sans: 'system-ui', -apple-system, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+        }
+
+        body {
+            background-color: var(--white);
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            font-family: var(--font-sans);
+        }
+        main { flex: 1; }
+        .navbar-brand { font-weight: bold; font-size: 1.5rem; }
+        .content-card {
+            background-color: var(--white);
+            border-radius: 16px; /* Softer radius */
+            border: 1px solid #e9ecef;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
+        }
+        .content-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 35px rgba(0,0,0,0.08);
+        }
+        .text-primary { color: var(--primary-green) !important; }
+        .text-accent { color: var(--accent-orange) !important; }
+
+        /* Button Styles */
+        .btn {
+            border-radius: 50px;
+            font-weight: 600;
+            padding: 0.8rem 1.75rem;
+            transition: all 0.3s ease;
+            letter-spacing: 0.5px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(0,0,0,0.15);
+        }
+        .btn-primary { background-color: var(--primary-green); border-color: var(--primary-green); }
+        .btn-primary:hover { background-color: var(--dark-green); border-color: var(--dark-green); }
+        .btn-accent { background-color: var(--accent-orange); border-color: var(--accent-orange); color: var(--white); }
+        .btn-accent:hover { background-color: #e86e0c; border-color: #e86e0c; }
+        .btn-outline-primary { color: var(--primary-green); border-color: var(--primary-green); box-shadow: none; }
+        .btn-outline-primary:hover { background-color: var(--primary-green); color: var(--white); }
+        .btn-outline-dark { border-color: #ccc; color: var(--dark-text); box-shadow: none; }
+        .btn-outline-dark:hover { background-color: var(--dark-text); color: var(--white); }
+
+        /* Animation Styles */
+        .animate-on-scroll { opacity: 0; transform: translateY(30px); transition: opacity 0.8s ease-out, transform 0.8s ease-out; }
+        .is-visible { opacity: 1; transform: translateY(0); }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm sticky-top">
+        <div class="container">
+            <a class="navbar-brand text-primary" href="{% url 'index' %}"><i class="bi bi-gift-fill"></i> Kindway</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#main-nav"><span class="navbar-toggler-icon"></span></button>
+            <div class="collapse navbar-collapse" id="main-nav">
+                <ul class="navbar-nav ms-auto align-items-center">
+                    
+                    <li class="nav-item"><a class="nav-link" href="{% url 'index' %}">Home</a></li>
+                    
+                    {% if user.is_authenticated %}
+                        <li class="nav-item"><a class="nav-link" href="{% url 'dashboard' %}">Dashboard</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{% url 'conversation_list' %}">Messages</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{% url 'about_us' %}">About Us</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{% url 'contact_us' %}">Contact</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{% url 'account_logout' %}">Logout</a></li>
+                    {% else %}
+                        <li class="nav-item"><a class="nav-link" href="{% url 'about_us' %}">About Us</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{% url 'contact_us' %}">Contact</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{% url 'account_login' %}">Login</a></li>
+                        <li class="nav-item dropdown ms-2">
+                            <a class="nav-link btn btn-primary text-white dropdown-toggle px-3 py-2" href="#" id="navbarRegisterDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">Register</a>
+                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarRegisterDropdown">
+                                <li><a class="dropdown-item" href="{% url 'register_donor' %}">As a Donor</a></li>
+                                <li><a class="dropdown-item" href="{% url 'register_ngo' %}">As an NGO</a></li>
+                            </ul>
+                        </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <main>
+        {% if messages %}
+            <div class="container mt-4">
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+        
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="bg-dark text-white p-4 mt-auto">
+        <div class="container text-center">
+            <p><a href="{% url 'about_us' %}" class="text-white link-light me-3">About</a> | <a href="{% url 'contact_us' %}" class="text-white link-light ms-3">Contact</a></p>
+            <p class="mb-0">&copy; 2025 Kindway. All rights reserved.</p>
+            <small>Connecting hearts, one donation at a time.</small>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const animatedElements = document.querySelectorAll('.animate-on-scroll');
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => { if (entry.isIntersecting) { entry.target.classList.add('is-visible'); observer.unobserve(entry.target); } });
+            }, { threshold: 0.1 });
+            animatedElements.forEach(el => { observer.observe(el); });
+        });
+    </script>
+
+</body>
+</html>

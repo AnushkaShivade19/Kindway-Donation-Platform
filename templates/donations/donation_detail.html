@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card content-card">
+                {% if offer.image %}
+                    <img src="{{ offer.image.url }}" class="card-img-top" alt="{{ offer.title }}">
+                {% endif %}
+                <div class="card-body p-4">
+                    <h1 class="card-title">{{ offer.title }}</h1>
+                    <p class="text-muted">Category: {{ offer.category.name }}</p>
+                    <hr>
+                    <h4 class="mb-3">Description</h4>
+                    <p class="card-text fs-5">{{ offer.description }}</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card content-card">
+                <div class="card-header bg-primary text-white fs-5">Offer Details</div>
+                <div class="card-body">
+                    <h5>Status</h5>
+                    {% if offer.status == 'PENDING' %}
+                        <p class="fs-4 text-warning"><i class="bi bi-hourglass-split me-2"></i>Pending</p>
+                    {% elif offer.status == 'ACCEPTED' %}
+                        <p class="fs-4 text-success"><i class="bi bi-check-circle-fill me-2"></i>Accepted</p>
+                    {% elif offer.status == 'REJECTED' %}
+                        <p class="fs-4 text-danger"><i class="bi bi-x-circle-fill me-2"></i>Rejected</p>
+                    {% endif %}
+                    <hr>
+
+                    <h5>Offered To</h5>
+                    <p class="fs-5 mb-1">{{ offer.ngo.ngoprofile.ngo_name }}</p>
+                    <p class="text-muted">
+                        Contact: {{ offer.ngo.email }}
+                    </p>
+                    <hr>
+
+                    <h5>Delivery Method</h5>
+                    <p class="fs-5">
+                        {% if offer.delivery_type == 'PICKUP' %}
+                            <i class="bi bi-truck me-2"></i>Pickup Required
+                        {% else %}
+                            <i class="bi bi-box-arrow-in-down me-2"></i>Donor will Drop Off
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

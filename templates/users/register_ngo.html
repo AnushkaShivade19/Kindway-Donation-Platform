@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+{% load widget_tweaks %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card content-card p-4 p-md-5">
+            
+            <h2 class="text-center mb-4">Register as an NGO</h2>
+
+            <!-- Verification Info Box -->
+            <div class="alert alert-info d-flex align-items-center" role="alert">
+                <i class="bi bi-info-circle-fill me-3 fs-4"></i>
+                <div>
+                    Please fill out the form below to register your organization. You must upload a government-issued registration document. 
+                    Your account will be manually reviewed by our team before you can be listed on the site.
+                </div>
+            </div>
+            
+            <form method="POST" enctype="multipart/form-data" novalidate>
+                {% csrf_token %}
+                
+                {% if form.non_field_errors %}
+                    <div class="alert alert-danger" role="alert">
+                        {% for error in form.non_field_errors %}
+                            {{ error }}
+                        {% endfor %}
+                    </div>
+                {% endif %}
+
+                <!-- Render each field with Bootstrap classes -->
+                <div class="mb-3">
+                    <label for="{{ form.ngo_name.id_for_label }}" class="form-label">Organization Name</label>
+                    {% render_field form.ngo_name class="form-control" %}
+                    {% for error in form.ngo_name.errors %} <div class="invalid-feedback d-block">{{ error }}</div> {% endfor %}
+                </div>
+
+                <div class="mb-3">
+                    <label for="{{ form.email.id_for_label }}" class="form-label">Contact Email</label>
+                    {% render_field form.email class="form-control" placeholder="contact@ngo.org" %}
+                    {% for error in form.email.errors %} <div class="invalid-feedback d-block">{{ error }}</div> {% endfor %}
+                </div>
+
+                <div class="mb-3">
+                    <label for="{{ form.address.id_for_label }}" class="form-label">Address</label>
+                    {% render_field form.address class="form-control" rows="3" %}
+                    {% for error in form.address.errors %} <div class="invalid-feedback d-block">{{ error }}</div> {% endfor %}
+                </div>
+
+                <div class="mb-3">
+                    <label for="{{ form.mission_statement.id_for_label }}" class="form-label">Mission Statement (Optional)</label>
+                    {% render_field form.mission_statement class="form-control" rows="3" %}
+                    {% for error in form.mission_statement.errors %} <div class="invalid-feedback d-block">{{ error }}</div> {% endfor %}
+                </div>
+                
+                <div class="mb-3">
+                    <label for="{{ form.document.id_for_label }}" class="form-label">Registration Document (PDF, PNG, JPG)</label>
+                    {% render_field form.document class="form-control" %}
+                    {% for error in form.document.errors %} <div class="invalid-feedback d-block">{{ error }}</div> {% endfor %}
+                </div>
+
+                <div class="mb-3">
+                    <label for="{{ form.password.id_for_label }}" class="form-label">Password</label>
+                    {% render_field form.password class="form-control" %}
+                    {% for error in form.password.errors %} <div class="invalid-feedback d-block">{{ error }}</div> {% endfor %}
+                </div>
+
+                <button type="submit" class="btn btn-primary w-100 btn-lg mt-3">Submit for Verification</button>
+            </form>
+            
+        </div>
+    </div>
+</div>
+{% endblock %}
