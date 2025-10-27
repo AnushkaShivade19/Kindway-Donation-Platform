@@ -25,9 +25,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # --- CORE SECURITY AND DEBUG ---
 # Get SECRET_KEY from environment variables for production security
 SECRET_KEY = os.getenv('SECRET_KEY', 'default-insecure-key-for-dev-only-change-me')
-DEBUG = os.getenv('DJANGO_DEBUG', 'True') == 'True'
-
-ALLOWED_HOSTS = ['*'] # Change this for production deployment
+DJANGO_DEBUG = False
+ALLOWED_HOSTS = ['.herokuapp.com','127.0.0.1'] # Change this for production deployment
 
 # --- APPLICATION DEFINITION ---
 INSTALLED_APPS = [
@@ -62,6 +61,7 @@ MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware'
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'allauth.account.middleware.AccountMiddleware', # Allauth middleware
