@@ -1,0 +1,1 @@
+web: gunicorn kindway.wsgi --log-file -
