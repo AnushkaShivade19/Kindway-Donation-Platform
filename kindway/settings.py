@@ -1,6 +1,7 @@
 from pathlib import Path
 import os
 from dotenv import load_dotenv
+import dj_database_url
 
 load_dotenv() 
 
@@ -8,8 +9,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # --- CORE SECURITY AND DEBUG ---
 SECRET_KEY = os.getenv('SECRET_KEY', 'default-insecure-key-for-dev-only')
-DEBUG = True
-ALLOWED_HOSTS = ['127.0.0.1', '.herokuapp.com', '.onrender.com']
+DEBUG = os.getenv('DJANGO_DEBUG', 'False') == 'True'
+
+# Railway provides the hostname automatically
+ALLOWED_HOSTS = [os.getenv('RAILWAY_STATIC_URL', '127.0.0.1')]
 
 # --- APPLICATION DEFINITION ---
 INSTALLED_APPS = [
@@ -19,17 +22,22 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
+    'whitenoise.runserver_nostatic', # For serving static files
     'django.contrib.staticfiles',
     'django.contrib.sites',
     'allauth', 'allauth.account', 'allauth.socialaccount', 'allauth.socialaccount.providers.google',
     'core', 'users', 'donations', 'communications', 'messaging',
+    
+    
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
+  
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
-    # 'whitenoise.middleware.WhiteNoiseMiddleware', # <-- THIS LINE IS REMOVED
+
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'allauth.account.middleware.AccountMiddleware',
@@ -43,7 +51,12 @@ TEMPLATES = [ { 'BACKEND': 'django.template.backends.django.DjangoTemplates', 'D
 
 WSGI_APPLICATION = 'kindway.wsgi.application'
 
-DATABASES = { 'default': { 'ENGINE': 'django.db.backends.sqlite3', 'NAME': BASE_DIR / 'db.sqlite3', } }
+DATABASES = {
+    'default': dj_database_url.config(
+        default=os.getenv('DATABASE_URL', 'sqlite:///db.sqlite3'),
+        conn_max_age=600
+    )
+}
 
 AUTH_USER_MODEL = 'users.CustomUser'
 AUTHENTICATION_BACKENDS = ['django.contrib.auth.backends.ModelBackend', 'allauth.account.auth_backends.AuthenticationBackend']
