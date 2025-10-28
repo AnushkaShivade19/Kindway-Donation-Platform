@@ -9,7 +9,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # --- CORE SECURITY AND DEBUG ---
 SECRET_KEY = os.getenv('SECRET_KEY', 'default-insecure-key-for-dev-only')
-DEBUG = os.getenv('DJANGO_DEBUG', 'False') == 'True'
+DEBUG = True
 
 # Railway provides the hostname automatically
 ALLOWED_HOSTS = [os.getenv('RAILWAY_STATIC_URL', '127.0.0.1')]
@@ -22,7 +22,6 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
-    'whitenoise.runserver_nostatic', # For serving static files
     'django.contrib.staticfiles',
     'django.contrib.sites',
     'allauth', 'allauth.account', 'allauth.socialaccount', 'allauth.socialaccount.providers.google',
