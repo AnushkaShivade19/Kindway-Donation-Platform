@@ -118,7 +118,6 @@ def contact_us(request):
         form = ContactForm()
 
     return render(request, 'core/contact_us.html', {'form': form})
-
 def index(request):
     """
     Handles logic for the main homepage, including processing the contact form.
@@ -136,7 +135,7 @@ def index(request):
             try:
                 send_mail(subject, full_message, from_email, [admin_email], fail_silently=False)
                 messages.success(request, "Your message has been sent successfully! We will get back to you soon.")
-                return redirect('index') # Redirect to clear the form and prevent re-submission
+                return redirect('index') # Redirect to clear the form
             except Exception as e:
                 messages.error(request, f"Sorry, there was an error sending your message.")
     else:
@@ -148,14 +147,16 @@ def index(request):
     verified_ngos_count = CustomUser.objects.filter(user_type='NGO', ngoprofile__verification_status='VERIFIED').count()
     registered_donors_count = CustomUser.objects.filter(user_type='DONOR').count()
     upcoming_events = Event.objects.filter(event_date__gte=timezone.now()).order_by('event_date')[:3]
+    featured_ngos = CustomUser.objects.filter(user_type='NGO', ngoprofile__verification_status='VERIFIED').order_by('?')[:3]
 
     context = {
-        'contact_form': contact_form, # Pass the form to the template
+        'contact_form': contact_form,
         'ngo_requests': ngo_requests,
         'donations_completed': donations_completed,
         'verified_ngos': verified_ngos_count,
         'registered_donors': registered_donors_count,
         'upcoming_events': upcoming_events,
+        'featured_ngos': featured_ngos,
     }
     
     return render(request, 'core/index.html', context)

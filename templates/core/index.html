@@ -4,102 +4,88 @@
 
 {% block content %}
 <style>
-    /* Styles for the comprehensive homepage layout */
     .section { padding: 5rem 0; }
     .section-bg { background-color: var(--light-bg); }
     .section-title { font-size: 2.8rem; font-weight: 700; color: var(--primary-green); }
     .section-subtitle { font-size: 1.2rem; color: var(--secondary-text); }
 
-    /* Hero Section */
     .hero-section {
-        /* Using a bright, inspiring image for the main hero */
         background: linear-gradient(rgba(0, 0, 0, 0.45), rgba(0, 0, 0, 0.45)), url("{% static 'images/heading.jpg' %}");
         background-size: cover; background-position: center; color: var(--white);
         padding: 8rem 0; text-align: center;
     }
     .hero-section h1 { font-size: 3.8rem; font-weight: 700; text-shadow: 2px 2px 5px rgba(0,0,0,0.3); }
 
-    /* How It Works */
-    .how-it-works-card {
-        text-align: center; padding: 2.5rem; border-radius: 16px; background-color: var(--white);
-        box-shadow: 0 8px 30px rgba(0,0,0,0.06); height: 100%; transition: transform 0.3s ease;
-    }
-    .how-it-works-card:hover { transform: translateY(-10px); }
-    .step-number { font-size: 1.5rem; font-weight: 700; color: var(--primary-green); margin-bottom: 1rem; }
+    .mission-image-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    .mission-image-grid img { width: 100%; height: 180px; object-fit: cover; border-radius: 12px; box-shadow: 0 5px 20px rgba(0,0,0,0.1); }
     
-    /* NGO of the Month Section */
+    .stat-item { text-align: center; }
+    .stat-item i { font-size: 3rem; color: var(--primary-green); margin-bottom: 1rem; }
+    .stat-item h3 { font-size: 2.5rem; font-weight: 700; }
+    .stat-item p { color: var(--secondary-text); font-size: 1.1rem; }
+
+    .how-it-works-card { text-align: center; padding: 2.5rem; border-radius: 16px; background-color: var(--white); box-shadow: 0 8px 30px rgba(0,0,0,0.06); height: 100%; transition: transform 0.3s ease; }
+    .how-it-works-card:hover { transform: translateY(-10px); }
+    
     .ngo-of-the-month { background-color: var(--dark-green); color: var(--white); }
     .ngo-of-the-month .stat h3 { font-size: 2.5rem; font-weight: 700; color: var(--accent-orange); }
 
-    /* Mission Section Image Grid */
-    .mission-image-grid {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 10px;
-        margin-top: 2rem;
-    }
-    .mission-image-grid img {
-        width: 100%;
-        height: 180px;
-        object-fit: cover;
-        border-radius: 8px;
-        box-shadow: 0 5px 15px rgba(0,0,0,0.08);
-    }
-    .mission-text-block { line-height: 1.8; font-size: 1.1rem; }
-
-    /* Video Section */
     .video-section video { width: 100%; height: 100%; min-height: 400px; object-fit: cover; border-radius: 16px; box-shadow: 0 10px 40px rgba(0,0,0,0.1); }
 
-    /* Story Card */
-    .story-card img { height: 250px; object-fit: cover; }
-    
-    /* CTA Section */
-    .cta-final-section { background: var(--primary-green); color: var(--white); }
-
-    /* Other Styles */
     .event-card .card-date { background-color: var(--primary-green); color: white; border-radius: 8px; padding: 0.5rem 1rem; text-align: center; }
     .event-card .card-date .day { font-size: 1.8rem; font-weight: 700; line-height: 1; }
     .event-card .card-date .month { font-size: 0.9rem; text-transform: uppercase; }
+    
+    .story-card img { height: 250px; object-fit: cover; }
+    .cta-final-section { background: var(--primary-green); color: var(--white); }
 </style>
 
 <div class="hero-section">
     <div class="container animate-on-scroll">
         <h1>Give Your Items a Second Life.</h1>
-        <p class="fs-4 col-md-8 mx-auto mt-3">Connect with verified NGOs in your community and turn your unused goods into meaningful impact.</p>
+        <p class="fs-4 col-md-8 mx-auto mt-3">Connect with verified NGOs and turn your unused goods into meaningful impact.</p>
         <div class="mt-4"><a href="{% url 'offer_donation_flow' %}" class="btn btn-accent btn-lg me-md-3 mb-3 mb-md-0">Donate Now</a><a href="#how-it-works" class="btn btn-outline-light btn-lg">Learn How</a></div>
     </div>
 </div>
 
-<div class="mission-section section-bg animate-on-scroll">
+<div class="section section-bg animate-on-scroll">
     <div class="container">
         <div class="row align-items-center g-5">
             <div class="col-lg-6">
                 <h2 class="section-title mb-4">Our Mission: Connecting Kindness with Need</h2>
-                <p class="mission-text-block text-secondary">Kindway believes that every unused item holds the potential for positive change. Our mission is to bridge the gap between generous donors and verified NGOs who are actively working to uplift communities. **We provide a seamless platform for responsible, impactful giving.**</p>
-                <p class="mission-text-block text-secondary">We strive to create a seamless, trustworthy platform where individuals can easily donate items, reduce waste, and foster a culture of giving. Your support directly ensures resources reach those who need them most.</p>
+                <p class="fs-5 text-secondary">Kindway believes every unused item holds potential for change. We bridge the gap between your generosity and verified NGOs, ensuring your donations make a real difference in your community.</p>
                 <a href="{% url 'about_us' %}" class="btn btn-primary btn-lg mt-4">Learn More About Us</a>
             </div>
             <div class="col-lg-6">
                 <div class="mission-image-grid">
-                    {# Using specific filenames you provided #}
-                    <img src="{% static 'images/charity.png' %}" alt="Charity Volunteers">
-                    <img src="{% static 'images/education.jpg' %}" alt="Education Books">
-                    <img src="{% static 'images/food.jpg' %}" alt="Food Donation">
-                    <img src="{% static 'images/sustainable.jpg' %}" alt="Sustainable Hands">
+                    <img src="{% static 'images/charity.png' %}" alt="Charity volunteers">
+                    <img src="{% static 'images/sustainable.jpg' %}" alt="Sustainability">
+                    <img src="{% static 'images/upcycle.jpg' %}" alt="Upcycling clothes">
+                    <img src="{% static 'images/savvee.png' %}" alt="Saving items">
                 </div>
             </div>
         </div>
     </div>
 </div>
 
+<div class="section animate-on-scroll">
+    <div class="container">
+        <div class="text-center mb-5"><h2 class="section-title">Our Impact in Numbers</h2><p class="section-subtitle col-md-8 mx-auto">Every number represents a story of kindness and a step towards a better community.</p></div>
+        <div class="row g-4 stat-item">
+            <div class="col-md-4"><i class="bi bi-gift-fill"></i><h3>{{ donations_completed }}+</h3><p>Donations Fulfilled</p></div>
+            <div class="col-md-4"><i class="bi bi-shield-check"></i><h3>{{ verified_ngos }}+</h3><p>Verified NGOs Partnered</p></div>
+            <div class="col-md-4"><i class="bi bi-people-fill"></i><h3>{{ registered_donors }}+</h3><p>Generous Donors Joined</p></div>
+        </div>
+    </div>
+</div>
 
-<div id="how-it-works" class="section animate-on-scroll">
+<div id="how-it-works" class="section section-bg animate-on-scroll">
     <div class="container">
         <div class="text-center mb-5"><h2 class="section-title">A Simple Path to a Big Impact</h2></div>
         <div class="row g-4">
-            <div class="col-md-4"><div class="how-it-works-card"><span class="step-number">Step 1</span><i class="bi bi-box2-heart-fill display-4 text-accent mb-3"></i><h3>Offer Your Item</h3><p class="text-secondary">Quickly list any item you wish to donate, from clothes to books and beyond.</p></div></div>
-            <div class="col-md-4"><div class="how-it-works-card"><span class="step-number">Step 2</span><i class="bi bi-geo-alt-fill display-4 text-accent mb-3"></i><h3>Find a Local NGO</h3><p class="text-secondary">We show you verified NGOs in your area that need what you have to offer.</p></div></div>
-            <div class="col-md-4"><div class="how-it-works-card"><span class="step-number">Step 3</span><i class="bi bi-send-check-fill display-4 text-accent mb-3"></i><h3>Arrange & Donate</h3><p class="text-secondary">Chat directly with the NGO to coordinate a smooth pickup or drop-off.</p></div></div>
+            <div class="col-md-4"><div class="how-it-works-card"><i class="bi bi-box2-heart-fill display-4 text-accent mb-3"></i><h3>Offer Your Item</h3><p class="text-secondary">Quickly list any item you wish to donate, from clothes to books and beyond.</p></div></div>
+            <div class="col-md-4"><div class="how-it-works-card"><i class="bi bi-geo-alt-fill display-4 text-accent mb-3"></i><h3>Find a Local NGO</h3><p class="text-secondary">We show you verified NGOs in your area that need what you have to offer.</p></div></div>
+            <div class="col-md-4"><div class="how-it-works-card"><i class="bi bi-send-check-fill display-4 text-accent mb-3"></i><h3>Arrange & Donate</h3><p class="text-secondary">Chat directly with the NGO to coordinate a smooth pickup or drop-off.</p></div></div>
         </div>
     </div>
 </div>
@@ -109,24 +95,6 @@
         <div class="row align-items-center g-5">
             <div class="col-lg-6"><span class="badge bg-light text-dark mb-3">NGO of the Month</span><h2 class="display-4 fw-bold">Forengers Foundation</h2><p class="lead mt-3">Forengers is a community of 800+ youngsters countering climate change one step at a time, from planting saplings to conducting massive cleanup drives across Pune.</p><div class="row mt-4"><div class="col-4 stat"><h3>3900+</h3><p>Saplings Planted</p></div><div class="col-4 stat"><h3>400+</h3><p>Bags of Garbage Collected</p></div><div class="col-4 stat"><h3>800+</h3><p>Volunteers</p></div></div><a href="#" class="btn btn-accent btn-lg mt-4">Learn More</a></div>
             <div class="col-lg-6"><img src="{% static 'images/ngo.jpg' %}" class="img-fluid rounded-3 shadow-lg" alt="Forengers Foundation team"></div>
-        </div>
-    </div>
-</div>
-
-<div class="section section-bg where-we-operate animate-on-scroll">
-    <div class="container">
-        <div class="row g-5 align-items-center">
-            <div class="col-lg-7">
-                <img src="https://i.imgur.com/8Yg1p2B.png" class="img-fluid" alt="Map of Pune">
-            </div>
-            <div class="col-lg-5">
-                <h2 class="section-title text-primary">Where We Operate</h2>
-                <p class="text-secondary mt-3">Our network is growing across Maharashtra to connect kindness locally. We are currently focusing our services in these major hubs:</p>
-                <div class="row mt-4">
-                    <div class="col-6"><ul class="list-unstyled"><li><i class="bi bi-geo-alt-fill me-2"></i> Pune</li><li><i class="bi bi-geo-alt-fill me-2"></i> Mumbai</li><li><i class="bi bi-geo-alt-fill me-2"></i> Nashik</li></ul></div>
-                    <div class="col-6"><ul class="list-unstyled"><li><i class="bi bi-geo-alt-fill me-2"></i> Aurangabad</li><li><i class="bi bi-geo-alt-fill me-2"></i> Kolhapur</li><li><i class="bi bi-geo-alt-fill me-2"></i> Nagpur</li></ul></div>
-                </div>
-            </div>
         </div>
     </div>
 </div>
@@ -148,7 +116,7 @@
     <div class="container">
         <div class="text-center mb-5"><h2 class="section-title text-primary">See the Impact in Action</h2></div>
         <div class="row g-4 justify-content-center">
-            <div class="col-lg-8"><div class="card content-card shadow-sm"><video controls muted poster="{% static 'images/tree.jpg' %}"><source src="{% static 'videos/vid2.mp4' %}" type="video/mp4">Your browser does not support the video tag.</video></div></div>
+            <div class="col-lg-8"><div class="card content-card shadow-sm p-2"><video controls muted poster="{% static 'images/tree.jpg' %}"><source src="{% static 'videos/vid2.mp4' %}" type="video/mp4">Your browser does not support the video tag.</video></div></div>
         </div>
     </div>
 </div>
@@ -159,7 +127,7 @@
         <div class="row g-4">
             <div class="col-md-4"><div class="card content-card story-card h-100"><img src="{% static 'images/food.jpg' %}" class="card-img-top" alt="Food donation"><div class="card-body p-4"><h5 class="card-title text-primary">Warm Meals, Full Hearts</h5><p class="card-text text-secondary">"We connected a local restaurant with surplus food to a nearby children's home..."</p><footer class="blockquote-footer mt-2">Kindway Impact Story</footer></div></div></div>
             <div class="col-md-4"><div class="card content-card story-card h-100"><img src="{% static 'images/education.jpg' %}" class="card-img-top" alt="Book donation"><div class="card-body p-4"><h5 class="card-title text-primary">Books for Bright Futures</h5><p class="card-text text-secondary">"Our dusty box of children's books found a new home at a learning center..."</p><footer class="blockquote-footer mt-2">Anjali R., Pune</footer></div></div></div>
-            <div class="col-md-4"><div class="card content-card story-card h-100"><img src="{% static 'images/charity.png' %}" class="card-img-top" alt="Volunteering story"><div class="card-body p-4"><h5 class="card-title text-primary">Volunteers Make the Difference</h5><p class="card-text text-secondary">"Through Kindway, we found volunteers for our cleanup drive. Their energy was inspiring."</p><footer class="blockquote-footer mt-2">Asha Foundation</footer></div></div></div>
+            <div class="col-md-4"><div class="card content-card story-card h-100"><img src="{% static 'images/img.jpg' %}" class="card-img-top" alt="Volunteering story"><div class="card-body p-4"><h5 class="card-title text-primary">Volunteers Make the Difference</h5><p class="card-text text-secondary">"Through Kindway, we found volunteers for our cleanup drive. Their energy was inspiring."</p><footer class="blockquote-footer mt-2">Asha Foundation</footer></div></div></div>
         </div>
     </div>
 </div>
