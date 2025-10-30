@@ -5,7 +5,7 @@ set -e
 
 echo "Running Django management commands..."
 
-# Vercel has already installed dependencies.
-# We just need to run collectstatic and migrations.
-python3.9 manage.py collectstatic --no-input --clear
-python3.9 manage.py migrate
+# Use 'python' to let Vercel use the correct virtual environment
+# where packages from requirements.txt have been installed.
+python manage.py collectstatic --no-input --clear
+python manage.py migrate
