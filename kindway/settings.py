@@ -12,7 +12,7 @@ SECRET_KEY = os.getenv('SECRET_KEY', 'default-insecure-key-for-dev-only')
 DEBUG = True
 
 # Railway provides the hostname automatically
-ALLOWED_HOSTS = ['.vercel.app', 'localhost']
+ALLOWED_HOSTS = ["*"]
 
 # --- APPLICATION DEFINITION ---
 INSTALLED_APPS = [
@@ -51,8 +51,12 @@ TEMPLATES = [ { 'BACKEND': 'django.template.backends.django.DjangoTemplates', 'D
 WSGI_APPLICATION = 'kindway.wsgi.application'
 
 DATABASES = {
-    dj_database_url.config(default=os.environ.get('DATABASE_URL'))
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
+    }
 }
+CSRF_TRUSTED_ORIGINS = ['https://*.vercel.app']
 
 AUTH_USER_MODEL = 'users.CustomUser'
 AUTHENTICATION_BACKENDS = ['django.contrib.auth.backends.ModelBackend', 'allauth.account.auth_backends.AuthenticationBackend']
