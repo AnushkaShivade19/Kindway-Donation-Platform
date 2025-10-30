@@ -1,6 +1,9 @@
 from pathlib import Path
 import os
 from dotenv import load_dotenv
+import dj_database_url
+
+
 
 load_dotenv() 
 
@@ -57,10 +60,9 @@ TEMPLATES = [ { 'BACKEND': 'django.template.backends.django.DjangoTemplates', 'D
 WSGI_APPLICATION = 'kindway.wsgi.application'
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
+    'default': dj_database_url.config(
+        default=os.environ.get("DATABASE_URL")
+    )
 }
 
 CSRF_TRUSTED_ORIGINS = ['https://*.vercel.app']
@@ -87,8 +89,9 @@ USE_TZ = True
 
 # --- STATIC & MEDIA FILES ---
 STATIC_URL = '/static/'
-STATICFILES_DIRS = [ os.path.join(BASE_DIR, 'static'), ]
+STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 # This is for WhiteNoise IN PRODUCTION ONLY
