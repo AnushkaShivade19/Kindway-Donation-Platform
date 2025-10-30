@@ -56,6 +56,7 @@ DATABASES = {
         'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
+
 CSRF_TRUSTED_ORIGINS = ['https://*.vercel.app']
 
 AUTH_USER_MODEL = 'users.CustomUser'
