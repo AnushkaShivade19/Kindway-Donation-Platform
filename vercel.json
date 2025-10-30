@@ -1,14 +1,8 @@
 {
   "builds": [
-    {
-      "src": "manage.py",
-      "use": "@vercel/python"
-    }
+    { "src": "vercel_handler.py", "use": "@vercel/python" }
   ],
   "routes": [
-    {
-      "src": "/(.*)",
-      "dest": "manage.py"
-    }
+    { "src": "/(.*)", "dest": "vercel_handler.py" }
   ]
 }
