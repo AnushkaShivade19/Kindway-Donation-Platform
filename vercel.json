@@ -1,7 +1,7 @@
 {
   "builds": [
     {
-      "src": "Kindway/wsgi.py",
+      "src": "kindway/wsgi.py",
       "use": "@vercel/python",
       "config": {
         "maxLambdaSize": "15mb",
@@ -23,7 +23,7 @@
     },
     {
       "src": "/(.*)",
-      "dest": "Kindway/wsgi.py"
+      "dest": "kindway/wsgi.py"
     }
   ]
 }
