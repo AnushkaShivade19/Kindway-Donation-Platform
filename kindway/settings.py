@@ -51,10 +51,7 @@ TEMPLATES = [ { 'BACKEND': 'django.template.backends.django.DjangoTemplates', 'D
 WSGI_APPLICATION = 'kindway.wsgi.application'
 
 DATABASES = {
-    'default': dj_database_url.config(
-        default=os.getenv('DATABASE_URL', 'sqlite:///db.sqlite3'),
-        conn_max_age=600
-    )
+    dj_database_url.config(default=os.environ.get('DATABASE_URL'))
 }
 
 AUTH_USER_MODEL = 'users.CustomUser'
