@@ -102,3 +102,12 @@ kindway_admin_site.register(SuccessStory, SuccessStoryAdmin)
 # messaging app
 kindway_admin_site.register(Conversation, ConversationAdmin)
 kindway_admin_site.register(Message, MessageAdmin)
+
+from django.contrib.sites.models import Site
+from allauth.socialaccount.models import SocialApp, SocialAccount, SocialToken
+
+# sites and social accounts
+kindway_admin_site.register(Site)
+kindway_admin_site.register(SocialApp)
+kindway_admin_site.register(SocialAccount)
+kindway_admin_site.register(SocialToken)

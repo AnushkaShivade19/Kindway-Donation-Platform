@@ -23,18 +23,28 @@ ALLOWED_HOSTS = [
 
 # --- APPLICATION DEFINITION ---
 INSTALLED_APPS = [
-    'widget_tweaks',
+    # Default Django apps
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'django.contrib.sites',
-    'allauth', 'allauth.account', 'allauth.socialaccount', 'allauth.socialaccount.providers.google',
-    'core', 'users', 'donations', 'communications', 'messaging',
-    
-    
+    'django.contrib.sites',   # ✅ REQUIRED for allauth
+
+    # Allauth apps
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+    'allauth.socialaccount.providers.google',
+
+    # Your project apps
+    'core',
+    'users',
+    'donations',
+    'messaging',
+    'communications',
+    'widget_tweaks',
 ]
 
 MIDDLEWARE = [
@@ -50,6 +60,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+SITE_ID = 1
 
 ROOT_URLCONF = 'kindway.urls'
 
