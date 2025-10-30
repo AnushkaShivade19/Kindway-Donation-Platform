@@ -3,15 +3,10 @@
 # Exit immediately if a command exits with a non-zero status.
 set -e
 
-echo "Building project..."
+echo "Running Django management commands..."
 
-# Install Python dependencies
-pip install -r requirements.txt
+# Vercel has already installed dependencies from requirements.txt
+# We just need to run collectstatic and migrations.
 
-# Run collectstatic
-python manage.py collectstatic --no-input
-
-# Run database migrations
-# Note: It's often better to run migrations manually or in a separate process.
-# This command is included for simplicity but can be risky in production.
-python manage.py migrate
+python3.9 manage.py collectstatic --no-input --clear
+python3.9 manage.py migrate
