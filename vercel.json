@@ -1,20 +1,14 @@
 {
-  "version": 2,
   "builds": [
     {
-      "src": "kindway/wsgi.py",
-      "use": "@vercel/python",
-      "config": { "maxLambdaSize": "50mb", "runtime": "python3.10" }
+      "src": "manage.py",
+      "use": "@vercel/python"
     }
   ],
   "routes": [
     {
-      "src": "/static/(.*)",
-      "dest": "/static/$1"
-    },
-    {
       "src": "/(.*)",
-      "dest": "kindway/wsgi.py"
+      "dest": "manage.py"
     }
   ]
 }
