@@ -1,14 +1,12 @@
 #!/bin/bash
 set -e
 
-echo "🚀 Installing Python dependencies..."
-pip install --upgrade pip
+# Install dependencies
 pip install -r requirements.txt
 
-echo "🧩 Running Django migrations..."
-python manage.py migrate --noinput || true
-
-echo "🎨 Collecting static files..."
+# Run Django management commands
 python manage.py collectstatic --noinput
+python manage.py migrate
 
-echo "✅ Build completed!"
+# Launch server
+gunicorn kindway.wsgi
