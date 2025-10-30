@@ -9,7 +9,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # --- CORE SECURITY AND DEBUG ---
 SECRET_KEY = os.getenv('SECRET_KEY', 'default-insecure-key-for-dev-only')
-DEBUG = False
+DEBUG = True
 
 # Railway provides the hostname automatically
 import os
