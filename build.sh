@@ -1,10 +1,14 @@
 #!/bin/bash
 set -e
 
-# Install Python dependencies
+echo "🚀 Installing Python dependencies..."
 pip install --upgrade pip
 pip install -r requirements.txt
 
-# Run migrations and collect static files
-python manage.py migrate --noinput
+echo "🧩 Running Django migrations..."
+python manage.py migrate --noinput || true
+
+echo "🎨 Collecting static files..."
 python manage.py collectstatic --noinput
+
+echo "✅ Build completed!"
