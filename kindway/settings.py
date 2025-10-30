@@ -9,10 +9,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # --- CORE SECURITY AND DEBUG ---
 SECRET_KEY = os.getenv('SECRET_KEY', 'default-insecure-key-for-dev-only')
-DEBUG = True
+DEBUG = False
 
 # Railway provides the hostname automatically
-ALLOWED_HOSTS = ["*"]
+ALLOWED_HOSTS = ['.vercel.app', 'localhost']
 
 # --- APPLICATION DEFINITION ---
 INSTALLED_APPS = [
@@ -82,7 +82,7 @@ USE_TZ = True
 # --- STATIC & MEDIA FILES ---
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [ os.path.join(BASE_DIR, 'static'), ]
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+STATIC_ROOT = BASE_DIR / 'staticfiles'
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 # This is for WhiteNoise IN PRODUCTION ONLY
