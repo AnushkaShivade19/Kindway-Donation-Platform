@@ -1,12 +1,12 @@
 #!/bin/bash
+
+# Exit immediately if a command exits with a non-zero status.
 set -e
 
-# Install dependencies
-pip install -r requirements.txt
+echo "Running Django management commands..."
 
-# Run Django management commands
-python manage.py collectstatic --noinput
+# Vercel has already installed packages.
+# We just use 'python' to run our commands.
+python manage.py collectstatic --no-input --clear
 python manage.py migrate
 
-# Launch server
-gunicorn kindway.wsgi
