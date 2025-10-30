@@ -1,11 +1,10 @@
 #!/bin/bash
-
-# Exit immediately if a command exits with a non-zero status.
 set -e
 
-echo "Running Django management commands..."
+# Install Python dependencies
+pip install --upgrade pip
+pip install -r requirements.txt
 
-# Use 'python' to let Vercel use the correct virtual environment
-# where packages from requirements.txt have been installed.
-python manage.py collectstatic --no-input --clear
-python manage.py migrate
+# Run migrations and collect static files
+python manage.py migrate --noinput
+python manage.py collectstatic --noinput
