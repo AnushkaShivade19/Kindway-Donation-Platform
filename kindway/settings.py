@@ -12,7 +12,14 @@ SECRET_KEY = os.getenv('SECRET_KEY', 'default-insecure-key-for-dev-only')
 DEBUG = False
 
 # Railway provides the hostname automatically
-ALLOWED_HOSTS = ['.vercel.app', 'localhost']
+import os
+
+ALLOWED_HOSTS = [
+    '.vercel.app',        # allow all vercel subdomains
+    '127.0.0.1',          # local testing
+    'localhost',
+]
+
 
 # --- APPLICATION DEFINITION ---
 INSTALLED_APPS = [
