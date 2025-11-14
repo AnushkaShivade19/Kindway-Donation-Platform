@@ -1,9 +1,8 @@
 #!/bin/bash
-# Exit on error
 set -o errexit
 
-# The 'pip install' command will be in the Vercel UI
-# The 'migrate' command must be run from your local machine
+# pip install is in the UI
+# migrate is done manually
 
-# All this file does is collect static files for S3/Vercel
+# This is the only command that should be here
 python manage.py collectstatic --noinput
