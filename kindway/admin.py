@@ -15,7 +15,6 @@ class KindwayAdminSite(admin.AdminSite):
     site_title = "Kindway Admin Portal"
     index_title = "Welcome to the Kindway Control Panel"
     
-
     def index(self, request, extra_context=None):
         if 'default' in request.GET:
             return super().index(request, extra_context)
@@ -25,24 +24,23 @@ class KindwayAdminSite(admin.AdminSite):
 
 # Create the single instance
 kindway_admin_site = KindwayAdminSite(name='kindway_admin')
+
+# --- Define all ModelAdmin classes right here ---
 class SuccessStoryAdmin(admin.ModelAdmin):
-    list_display = ('name', 'city', 'submitted_at', 'is_featured') # Add 'is_featured'
-    list_filter = ('is_featured', 'submitted_at') # Add 'is_featured'
+    list_display = ('name', 'city', 'submitted_at', 'is_featured')
+    list_filter = ('is_featured', 'submitted_at')
     search_fields = ('name', 'city', 'story_content')
-    list_editable = ('is_featured',) # Allow quick editing from the list view
-    actions = ['mark_featured', 'unmark_featured'] # Add custom actions
+    list_editable = ('is_featured',)
+    actions = ['mark_featured', 'unmark_featured']
 
     def mark_featured(self, request, queryset):
         queryset.update(is_featured=True)
-        self.message_user(request, f"{queryset.count()} story/stories marked as featured.")
     mark_featured.short_description = "Mark selected stories as featured"
 
     def unmark_featured(self, request, queryset):
         queryset.update(is_featured=False)
-        self.message_user(request, f"{queryset.count()} story/stories unmarked as featured.")
     unmark_featured.short_description = "Unmark selected stories as featured"
 
-# --- Define all ModelAdmin classes right here ---
 class NGOProfileAdmin(admin.ModelAdmin):
     list_display = ('ngo_name', 'user_email', 'verification_status', 'view_document_link')
     list_filter = ('verification_status',)
@@ -82,32 +80,29 @@ class MessageAdmin(admin.ModelAdmin):
     list_filter = ('is_read', 'conversation')
 
 # --- Register ALL models with the custom site ---
-# users app
 kindway_admin_site.register(CustomUser)
 kindway_admin_site.register(NGOProfile, NGOProfileAdmin)
 kindway_admin_site.register(DonorProfile)
 
-# Use the new ModelAdmin for SuccessStory
-
-# donations app
 kindway_admin_site.register(Category)
 kindway_admin_site.register(Donation)
 kindway_admin_site.register(DonationOffer)
 kindway_admin_site.register(NGORequest)
 
-# communications app
 kindway_admin_site.register(Event)
 kindway_admin_site.register(SuccessStory, SuccessStoryAdmin)
 
-# messaging app
 kindway_admin_site.register(Conversation, ConversationAdmin)
 kindway_admin_site.register(Message, MessageAdmin)
 
+# Register allauth models
 from django.contrib.sites.models import Site
 from allauth.socialaccount.models import SocialApp, SocialAccount, SocialToken
+# --- FIX 1: Import SocialAppAdmin ---
+from allauth.socialaccount.admin import SocialAppAdmin 
 
-# sites and social accounts
 kindway_admin_site.register(Site)
-kindway_admin_site.register(SocialApp)
+# --- FIX 2: Register SocialApp with SocialAppAdmin ---
+kindway_admin_site.register(SocialApp, SocialAppAdmin) 
 kindway_admin_site.register(SocialAccount)
 kindway_admin_site.register(SocialToken)

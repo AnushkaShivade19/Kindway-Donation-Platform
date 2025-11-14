@@ -1,26 +1,71 @@
-
-
 from django.shortcuts import render, redirect
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
-from .forms import DonorRegistrationForm, NGORegistrationForm
+from django.contrib import messages
+from django.db.models import Q
 
+# Geopy Imports
 from geopy.distance import great_circle
 from geopy.geocoders import Nominatim
-from .models import CustomUser ,Category
-from django.contrib import messages
+from geopy.exc import GeocoderTimedOut, GeocoderUnavailable
 
-from .forms import DonorRegistrationForm, NGORegistrationForm, NGOProfileUpdateForm, DonorProfileUpdateForm
+# Model Imports
+from .models import CustomUser, Category, DonorProfile, NGOProfile
+from donations.models import NGORequest
 
-# users/views.py
-from .models import DonorProfile , NGOProfile# Import DonorProfile
+# Form Imports
+from .forms import (
+    DonorRegistrationForm, 
+    NGORegistrationForm, 
+    NGOProfileUpdateForm, 
+    DonorProfileUpdateForm
+)
+
+
+# --- Helper Function ---
+@login_required
+def redirect_after_login(request):
+    """
+    Redirect users based on their 'user_type' attribute.
+    """
+    
+    # This is the key line:
+    # We check the 'user_type' field from your CustomUser model.
+    if request.user.user_type == "NGO":
+        return redirect('ngo_dashboard')  # Use the URL *name* if you have one
+    
+    elif request.user.user_type == "DONOR":
+        return redirect('donor_dashboard')
+        
+    else:
+        # A good fallback for superusers or other types
+        if request.user.is_superuser:
+            return redirect('/admin') 
+        # Fallback for any other case
+        return redirect('homepage')
+        
+def get_coords_from_pincode(pincode):
+    """
+    Helper function to get (latitude, longitude) from a pincode.
+    """
+    try:
+        # Added a timeout to prevent hanging
+        geolocator = Nominatim(user_agent="kindway_app", timeout=5) 
+        location = geolocator.geocode(f"{pincode}, IN") # 'IN' limits search to India
+        if location:
+            return (location.latitude, location.longitude)
+        return None
+    except Exception as e:
+        print(f"Error geocoding: {e}")
+        return None
+
+# --- Views ---
 
 @login_required
 def choose_user_role(request):
     """
     Allows a new user (especially from social auth) to choose their role.
     """
-    # If user already has a role, redirect them away.
     if request.user.user_type:
         return redirect('dashboard')
 
@@ -30,17 +75,14 @@ def choose_user_role(request):
         
         if role == 'DONOR':
             user.user_type = 'DONOR'
-            # Create a donor profile for them
             DonorProfile.objects.get_or_create(user=user)
             user.save(update_fields=['user_type'])
             messages.success(request, "Your profile has been set up as a Donor!")
-            return redirect('edit_donor_profile') # Send them to fill out their pincode
+            return redirect('edit_donor_profile')
             
         elif role == 'NGO':
             user.user_type = 'NGO'
             user.save(update_fields=['user_type'])
-            
-            # 2. Redirect to the EDIT profile page, not the register page
             messages.info(request, "Great! Please complete your NGO profile details for verification.")
             return redirect('edit_ngo_profile')
 
@@ -48,7 +90,6 @@ def choose_user_role(request):
 
 @login_required
 def edit_donor_profile(request):
-    # Security check to ensure the user is a donor
     if request.user.user_type != 'DONOR':
         messages.error(request, "You do not have permission to view this page.")
         return redirect('dashboard')
@@ -56,73 +97,74 @@ def edit_donor_profile(request):
     try:
         donor_profile = request.user.donorprofile
     except DonorProfile.DoesNotExist:
-        # Handle cases where a profile might not exist (e.g., social auth user)
         donor_profile = DonorProfile.objects.create(user=request.user)
     
     if request.method == 'POST':
         form = DonorProfileUpdateForm(request.POST, instance=donor_profile)
         if form.is_valid():
-            # Save the DonorProfile part of the form
             form.save()
-            
-            # Update the email on the CustomUser model
             user = request.user
             user.email = form.cleaned_data['email']
             user.save(update_fields=['email'])
-
             messages.success(request, "Your profile has been updated successfully!")
             return redirect('dashboard')
     else:
-        # On a GET request, pre-populate the form with existing data
         form = DonorProfileUpdateForm(instance=donor_profile, initial={'email': request.user.email})
 
     return render(request, 'users/edit_donor_profile.html', {'form': form})
 
+
 def search_ngo(request):
     nearby_ngos = []
-    searched_pincode = ""
+    searched_pincode = request.GET.get('pincode', '')
+    searched_name = request.GET.get('name', '')
+    radius = request.GET.get('radius', '25')
 
-    if request.method == 'GET' and 'pincode' in request.GET:
-        pincode = request.GET.get('pincode')
-        radius = request.GET.get('radius', 25) # Default 25km radius
-        searched_pincode = pincode
+    base_query = CustomUser.objects.filter(
+        user_type='NGO',
+        ngoprofile__verification_status='VERIFIED'
+    )
 
-        if pincode and radius:
-            geolocator = Nominatim(user_agent="kindway_app_search")
-            try:
-                # Geocode user's pincode
-                user_location = geolocator.geocode(f"{pincode}, India")
-                if user_location:
-                    user_coords = (user_location.latitude, user_location.longitude)
+    if searched_name:
+        base_query = base_query.filter(
+            Q(ngoprofile__ngo_name__icontains=searched_name)
+        )
 
-                    # Filter for verified NGOs that have coordinates
-                    verified_ngos = CustomUser.objects.filter(
-                        user_type='NGO',
-                        ngoprofile__verification_status='VERIFIED',
-                        ngoprofile__latitude__isnull=False
-                    )
-
-                    for ngo_user in verified_ngos:
+    if searched_pincode:
+        try:
+            search_coords = get_coords_from_pincode(searched_pincode)
+            radius = int(radius)
+            
+            if search_coords:
+                for ngo_user in base_query:
+                    if ngo_user.ngoprofile.latitude and ngo_user.ngoprofile.longitude:
                         ngo_coords = (ngo_user.ngoprofile.latitude, ngo_user.ngoprofile.longitude)
-                        distance = great_circle(user_coords, ngo_coords).km
+                        distance = great_circle(search_coords, ngo_coords).km
                         
-                        if distance <= float(radius):
-                            nearby_ngos.append({
-                                'user': ngo_user,
-                                'distance': round(distance, 1)
-                            })
-                    
-                    # Sort NGOs by distance
-                    nearby_ngos.sort(key=lambda x: x['distance'])
-
-            except (GeocoderTimedOut, GeocoderUnavailable):
-                messages.error(request, "The location service is currently unavailable. Please try again later.")
+                        if distance <= radius:
+                            nearby_ngos.append({'user': ngo_user, 'distance': round(distance, 1)})
+                
+                nearby_ngos.sort(key=lambda x: x['distance'])
+            else:
+                messages.error(request, f"Could not find a location for pincode {searched_pincode}.")
+        
+        except (GeocoderTimedOut, GeocoderUnavailable):
+            messages.error(request, "The location service is unavailable. Please try again later.")
+    
+    elif searched_name:
+        for ngo_user in base_query:
+            nearby_ngos.append({'user': ngo_user, 'distance': None}) 
+        nearby_ngos.sort(key=lambda x: x['user'].ngoprofile.ngo_name)
 
     context = {
         'nearby_ngos': nearby_ngos,
-        'searched_pincode': searched_pincode
+        'searched_pincode': searched_pincode,
+        'searched_name': searched_name,
+        'selected_radius': radius,
     }
     return render(request, 'users/search_ngo.html', context)
+
+
 def donor_register(request):
     if request.user.is_authenticated:
         return redirect('dashboard')
@@ -143,31 +185,29 @@ def ngo_register(request):
         return redirect('dashboard')
         
     if request.method == 'POST':
-        # We pass request.FILES to handle the file upload
         form = NGORegistrationForm(request.POST, request.FILES) 
         if form.is_valid():
             user = form.save()
-            # We don't log in the NGO. They must wait for verification.
-            # We can add a "pending verification" page later.
-            # For now, redirect to login with a success message.
-            return redirect('account_login') # This is an allauth URL
+            messages.success(request, "Registration successful! Your profile is pending verification.")
+            return redirect('account_login')
     else:
         form = NGORegistrationForm()
         
     return render(request, 'users/register_ngo.html', {'form': form})
 
-from donations.models import NGORequest # <-- Import NGORequest
-from geopy.distance import great_circle # <-- Import great_circle
-
-# users/views.py
-
+# --- THIS IS THE UPDATED VIEW ---
 @login_required
 def dashboard(request):
-    # 1. If user has no role, send them to choose one.
+    
+    # 1. NEW: Check for admin first
+    if request.user.is_superuser:
+        return redirect('admin:index') # This is the correct name for /admin/
+
+    # 2. If user has no role, send them to choose one.
     if not request.user.user_type:
         return redirect('choose_user_role')
 
-    # 2. Handle DONOR role
+    # 3. Handle DONOR role
     if request.user.user_type == 'DONOR':
         try:
             donor_profile = request.user.donorprofile
@@ -178,7 +218,6 @@ def dashboard(request):
             messages.warning(request, "Please complete your profile to get started.")
             return redirect('edit_donor_profile')
         
-        # ... (The rest of your donor dashboard logic is correct)
         nearby_requests = []
         if donor_profile.latitude and donor_profile.longitude:
             donor_coords = (donor_profile.latitude, donor_profile.longitude)
@@ -187,33 +226,26 @@ def dashboard(request):
                 if req.ngo.ngoprofile.latitude and req.ngo.ngoprofile.longitude:
                     ngo_coords = (req.ngo.ngoprofile.latitude, req.ngo.ngoprofile.longitude)
                     distance = great_circle(donor_coords, ngo_coords).km
-                    if distance <= 50:
+                    if distance <= 50: # 50km radius
                         nearby_requests.append(req)
         
         return render(request, 'users/dashboard_donor.html', {'nearby_requests': nearby_requests})
     
-    # 3. Handle NGO role
+    # 4. Handle NGO role
     elif request.user.user_type == 'NGO':
         try:
-            # This is the only place we should check for the profile.
             ngo_profile = request.user.ngoprofile
-            # If we find it, we render the dashboard, no matter the verification status.
-            # The template will handle showing the right message.
             return render(request, 'users/dashboard_ngo.html', {'profile': ngo_profile})
         except NGOProfile.DoesNotExist:
-            # This case is ONLY for new Google users who have chosen the NGO role
-            # but have not yet filled out their profile details.
             messages.info(request, "Welcome! Please complete your NGO profile details for verification.")
             return redirect('edit_ngo_profile')
     
-    # 4. Fallback
+    # 5. Fallback
     return redirect('index')
 
-from .forms import NGOProfileUpdateForm # Add this import
 
 @login_required
 def edit_ngo_profile(request):
-    # Security check: Ensure user is a verified NGO
     if not (request.user.user_type == 'NGO'):
         messages.error(request, "You do not have permission to view this page.")
         return redirect('dashboard')
@@ -221,25 +253,17 @@ def edit_ngo_profile(request):
     ngo_profile, created = NGOProfile.objects.get_or_create(user=request.user)
     
     if request.method == 'POST':
-        # Pass 'instance' to pre-fill the form with existing data
-        form = NGOProfileUpdateForm(request.POST, instance=ngo_profile)
+        form = NGOProfileUpdateForm(request.POST, request.FILES, instance=ngo_profile)
         if form.is_valid():
-            # Save the NGOProfile part
             profile = form.save(commit=False)
-            
-            # Save the email on the CustomUser model
             user = request.user
             user.email = form.cleaned_data['email']
             user.save(update_fields=['email'])
-            
-            # Save the NGOProfile with its many-to-many relationships
             profile.save()
-            form.save_m2m() # Required for saving ManyToManyField
-
+            form.save_m2m() 
             messages.success(request, "Your profile has been updated successfully!")
             return redirect('dashboard')
     else:
-        # For a GET request, initialize the form with the user's current data
         form = NGOProfileUpdateForm(instance=ngo_profile, initial={'email': request.user.email})
 
     return render(request, 'users/edit_ngo_profile.html', {'form': form})

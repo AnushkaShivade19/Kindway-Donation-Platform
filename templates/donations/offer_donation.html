@@ -2,75 +2,116 @@
 {% load widget_tweaks %}
 
 {% block content %}
-<div class="container">
+<div class="container my-5">
     <div class="row justify-content-center">
         <div class="col-lg-8">
-            <div class="card content-card p-4 p-md-5">
-                
-                {% if state == 'show_ngos' %}
-                    <h2 class="text-center mb-4">Step 2: Choose an NGO to Receive Your Offer</h2>
-                    <p class="text-center text-muted mb-4">Based on your item and location, here are the nearby NGOs that can accept your donation.</p>
+            <h1 class="text-center mb-4">Offer a Donation</h1>
 
-                    {% if nearby_ngos %}
-                        <ul class="list-group">
-                            {% for item in nearby_ngos %}
-                            <li class="list-group-item d-flex justify-content-between align-items-center">
-                                <div>
-                                    <h5 class="mb-1">{{ item.user.ngoprofile.ngo_name }}</h5>
-                                    <small class="text-muted">{{ item.user.ngoprofile.address }}</small>
+            {% if state == 'initial_form' %}
+                <div class="card shadow-sm">
+                    <div class="card-body p-4 p-md-5">
+                        <h2 class="h4 mb-3">Step 1: Tell us about your item</h2>
+                        <form method="POST" enctype="multipart/form-data">
+                            {% csrf_token %}
+                            
+                            {% if form.non_field_errors %}
+                                <div class="alert alert-danger">
+                                    {% for error in form.non_field_errors %}
+                                        <span>{{ error }}</span>
+                                    {% endfor %}
                                 </div>
-                                <div class="text-end">
-                                    <span class="badge bg-primary rounded-pill me-3">{{ item.distance }} km</span>
-                                    <form action="{% url 'send_offer_to_ngo' item.user.id %}" method="POST" class="d-inline">
-                                        {% csrf_token %}
-                                        <button type="submit" class="btn btn-sm btn-success">Send Offer</button>
-                                    </form>
-                                </div>
-                            </li>
-                            {% endfor %}
-                        </ul>
-                    {% else %}
-                        <div class="alert alert-warning">No verified NGOs were found in your area that accept this category. You could try listing it as a public donation instead.</div>
-                    {% endif %}
-                    <a href="{% url 'offer_donation_flow' %}" class="btn btn-outline-secondary mt-4">Start Over</a>
+                            {% endif %}
 
-                {% else %}
-                    <h2 class="text-center mb-4">Make a Direct Donation Offer</h2>
-                    <p class="text-center text-muted mb-4">Fill out your item's details, and we'll help you find a local NGO to give it to.</p>
-                    
-                    <form method="POST" enctype="multipart/form-data" novalidate>
-                        {% csrf_token %}
-                        <div class="mb-3">
-                            <label class="form-label">{{ form.title.label }}</label>
-                            {% render_field form.title class="form-control form-control-lg" %}
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">{{ form.description.label }}</label>
-                            {% render_field form.description class="form-control" %}
-                        </div>
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">{{ form.category.label }}</label>
+                            <div class="mb-3">
+                                <label for="{{ form.title.id_for_label }}" class="form-label">Title</label>
+                                {% render_field form.title class="form-control" placeholder="e.g., Box of T-Shirts" %}
+                                {% if form.title.errors %}<div class="invalid-feedback d-block">{{ form.title.errors.0 }}</div>{% endif %}
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="{{ form.description.id_for_label }}" class="form-label">Description</label>
+                                {% render_field form.description class="form-control" rows="4" placeholder="e.g., 10 medium-sized cotton t-shirts, gently used." %}
+                                {% if form.description.errors %}<div class="invalid-feedback d-block">{{ form.description.errors.0 }}</div>{% endif %}
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="{{ form.category.id_for_label }}" class="form-label">Category</label>
                                 {% render_field form.category class="form-select" %}
+                                {% if form.category.errors %}<div class="invalid-feedback d-block">{{ form.category.errors.0 }}</div>{% endif %}
                             </div>
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">{{ form.image.label }} (Optional)</label>
-                                {% render_field form.image class="form-control" %}
-                            </div>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Delivery Preference</label>
-                            <div class="border rounded p-2">
-                                {{ form.delivery_type }}
-                            </div>
-                        </div>
 
-                        <button type="submit" class="btn btn-primary w-100 btn-lg mt-3">
-                            <i class="bi bi-search me-2"></i> Find Nearby NGOs
-                        </button>
-                    </form>
+                            <div class="mb-3">
+                                <label for="{{ form.delivery_type.id_for_label }}" class="form-label">Delivery</label>
+                                {% render_field form.delivery_type class="form-select" %}
+                                {% if form.delivery_type.errors %}<div class="invalid-feedback d-block">{{ form.delivery_type.errors.0 }}</div>{% endif %}
+                            </div>
+                            
+                            <div class="d-grid">
+                                <button type="submit" class="btn btn-primary btn-lg">Find NGOs</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            
+            {% elif state == 'show_ngos' %}
+                <h2 class="h4 mb-3">Step 2: Choose an NGO</h2>
+
+                {% if nearby_ngos %}
+                    <h3 class="h5 mt-4">Nearby NGOs (within 50km)</h3>
+                    <div class="list-group mb-4 shadow-sm">
+                        {% for ngo in nearby_ngos %}
+                            <div class="list-group-item d-flex justify-content-between align-items-center flex-wrap">
+                                <div class="me-3">
+                                    <h5 class="mb-1">{{ ngo.user.ngoprofile.ngo_name }}</h5>
+                                    <p class="mb-1 text-muted">{{ ngo.user.ngoprofile.address }}</p>
+                                    <p class="mb-0"><strong>{{ ngo.distance }} km away</strong></p>
+                                </div>
+                                <form action="{% url 'send_offer_to_ngo' ngo.user.id %}" method="POST" class="mt-2 mt-md-0">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-primary">Send Offer</button>
+                                </form>
+                            </div>
+                        {% endfor %}
+                    </div>
                 {% endif %}
-            </div>
+
+                {% if other_ngos %}
+                    {% if nearby_ngos %}
+                        <h3 class="h5 mt-4">Other Verified NGOs</h3>
+                    {% elif not nearby_ngos %}
+                        <h3 class="h5 mt-4">No NGOs found nearby. Showing other verified NGOs:</h3>
+                    {% endif %}
+
+                    <div class="list-group shadow-sm">
+                        {% for ngo in other_ngos %}
+                            <div class="list-group-item d-flex justify-content-between align-items-center flex-wrap">
+                                <div class="me-3">
+                                    <h5 class="mb-1">{{ ngo.user.ngoprofile.ngo_name }}</h5>
+                                    <p class="mb-1 text-muted">{{ ngo.user.ngoprofile.address }}</p>
+                                    {% if ngo.distance %}
+                                        <p class="mb-0"><strong>{{ ngo.distance }} km away</strong></p>
+                                    {% endif %}
+                                </div>
+                                <form action="{% url 'send_offer_to_ngo' ngo.user.id %}" method="POST" class="mt-2 mt-md-0">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-primary">Send Offer</button>
+                                </form>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+
+                {% if not nearby_ngos and not other_ngos %}
+                    <div class="alert alert-warning text-center">
+                        <p class="lead mb-0">We could not find any verified NGOs that accept this item category at this time.</p>
+                    </div>
+                {% endif %}
+
+                <div class="text-center mt-4">
+                    <a href="{% url 'offer_donation_flow' %}" class="btn btn-outline-secondary">Go Back & Edit Offer</a>
+                </div>
+            
+            {% endif %}
         </div>
     </div>
 </div>

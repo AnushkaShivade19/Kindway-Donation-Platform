@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+{% load widget_tweaks %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-sm">
+                <div class="card-body p-4 p-md-5">
+                    <h1 class="text-center mb-4">Donate to {{ ngo.ngoprofile.ngo_name }}</h1>
+                    
+                    <form method="POST" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        
+                        <div class="mb-3">
+                            <label for="{{ form.title.id_for_label }}" class="form-label">Title</label>
+                            {% render_field form.title class="form-control" %}
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="{{ form.description.id_for_label }}" class="form-label">Description</label>
+                            {% render_field form.description class="form-control" rows="4" %}
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="{{ form.category.id_for_label }}" class="form-label">Category</label>
+                            {% render_field form.category class="form-select" %}
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="{{ form.delivery_type.id_for_label }}" class="form-label">Delivery</label>
+                            {% render_field form.delivery_type class="form-select" %}
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="{{ form.image.id_for_label }}" class="form-label">Upload Image (Optional)</label>
+                            {% render_field form.image class="form-control" %}
+                        </div>
+
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary btn-lg">Send Offer</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

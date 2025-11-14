@@ -1,48 +1,112 @@
 {% extends 'base.html' %}
 {% block content %}
-<div class="container">
-    <h1 class="display-5 fw-bold mb-4">Find an NGO Near You</h1>
-    <div class="card content-card p-4 mb-4">
-        <form method="GET" action="{% url 'search_ngo' %}">
-            <div class="row g-3 align-items-end">
-                <div class="col-md-5">
-                    <label for="pincode" class="form-label">Enter Your Pincode</label>
-                    <input type="text" name="pincode" class="form-control form-control-lg" value="{{ searched_pincode }}" required>
-                </div>
-                <div class="col-md-5">
-                    <label for="radius" class="form-label">Search Radius (in km)</label>
-                    <select name="radius" class="form-select form-select-lg">
-                        <option value="5">5 km</option>
-                        <option value="10">10 km</option>
-                        <option value="25" selected>25 km</option>
-                        <option value="50">50 km</option>
-                    </select>
-                </div>
-                <div class="col-md-2">
-                    <button type="submit" class="btn btn-primary btn-lg w-100">Search</button>
-                </div>
-            </div>
-        </form>
-    </div>
+<style>
+    /* A little extra CSS for a smooth hover effect on the result cards */
+    .card-hover {
+        transition: box-shadow 0.3s ease-in-out, transform 0.3s ease-in-out;
+    }
+    .card-hover:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+    }
+</style>
 
-    {% if searched_pincode %}
-        <h3 class="mt-5">Showing results for {{ searched_pincode }}</h3>
-        {% for item in nearby_ngos %}
-        <div class="card content-card mb-3">
-            <div class="card-body d-flex justify-content-between align-items-center">
-                <div>
-                    <h5 class="card-title">{{ item.user.ngoprofile.ngo_name }}</h5>
-                    <p class="card-text text-muted mb-0">{{ item.user.ngoprofile.address }}</p>
-                </div>
-                <div>
-                    <span class="badge bg-primary fs-6 me-3">{{ item.distance }} km away</span>
-                    <a href="#" class="btn btn-success">Donate to this NGO</a>
-                </div>
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-10 col-xl-8">
+            <h1 class="display-5 fw-bold mb-4 text-center">Find an NGO</h1>
+            
+            <div class="card content-card p-4 p-md-5 mb-5 shadow-sm border-0 rounded-3">
+                <form method="GET" action="{% url 'search_ngo' %}">
+                    <label class="form-label fs-5 mb-2">Search by Location</label>
+                    <div class="row g-3">
+                        <div class="col-md-8">
+                            <label for="pincode" class="form-label visually-hidden">Enter Pincode</label>
+                            <input type="text" name="pincode" class="form-control form-control-lg" value="{{ searched_pincode }}" placeholder="Enter Pincode (e.g., 411033)">
+                        </div>
+                        <div class="col-md-4">
+                            <label for="radius" class="form-label visually-hidden">Search Radius (km)</label>
+                            <select name="radius" class="form-select form-select-lg">
+                                <option value="5" {% if selected_radius == '5' %}selected{% endif %}>5 km</option>
+                                <option value="10" {% if selected_radius == '10' %}selected{% endif %}>10 km</option>
+                                <option value="25" {% if selected_radius == '25' %}selected{% endif %}>25 km</option>
+                                <option value="50" {% if selected_radius == '50' %}selected{% endif %}>50 km</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="d-flex align-items-center my-4">
+                        <hr class="flex-grow-1">
+                        <span class="mx-3 text-muted fw-bold">OR</span>
+                        <hr class="flex-grow-1">
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="name" class="form-label fs-5 mb-2">Search by Name</label>
+                        <input type="text" name="name" class="form-control form-control-lg" value="{{ searched_name }}" placeholder="e.g., 'Hope Foundation'">
+                    </div>
+
+                    <div class="d-grid mt-4">
+                        <button type="submit" class="btn btn-primary btn-lg w-100">
+                            Search NGOs
+                        </button>
+                    </div>
+                </form>
             </div>
+
+            {% if searched_pincode or searched_name %}
+                <h3 class="mt-5 mb-3">
+                    Showing results
+                    {% if searched_name %} for "{{ searched_name }}"{% endif %}
+                    {% if searched_pincode %} near {{ searched_pincode }}{% endif %}
+                </h3>
+                
+                <div class="row row-cols-1 row-cols-md-2 g-4">
+                    {% for item in nearby_ngos %}
+                    <div class="col">
+                        <div class="card h-100 shadow-sm border-0 rounded-3 card-hover">
+                            <div class="card-body pb-0">
+                                {% if item.distance %}
+                                    <span class="badge bg-primary float-end fs-6">{{ item.distance }} km away</span>
+                                {% endif %}
+
+                                <h5 class="card-title fs-4">{{ item.user.ngoprofile.ngo_name }}</h5>
+                                <p class="card-text text-muted mb-2">
+                                    <i class="bi bi-geo-alt-fill me-1"></i>
+                                    {{ item.user.ngoprofile.address }}
+                                </p>
+                                <p class="card-text small">
+                                    Accepts: 
+                                    {% for cat in item.user.ngoprofile.accepted_categories.all|slice:":3" %}
+                                        <span class="badge bg-light text-dark rounded-pill">{{ cat.name }}</span>
+                                    {% endfor %}
+                                    {% if item.user.ngoprofile.accepted_categories.all.count > 3 %}
+                                        <span class="badge bg-light text-dark rounded-pill">+ more</span>
+                                    {% endif %}
+                                </p>
+                            </div>
+                            <div class="card-footer bg-white border-0 pt-0 pb-3">
+                                <div class="btn-group w-100" role="group">
+                                    <a href="{% url 'view_ngo_requests' item.user.id %}" class="btn btn-outline-secondary">
+                                        View Requests
+                                    </a>
+                                    <a href="{% url 'donate_to_ngo' item.user.id %}" class="btn btn-success">
+                                        Donate Directly
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="col-12">
+                        <div class="alert alert-warning text-center">
+                            No verified NGOs found matching your search.
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
         </div>
-        {% empty %}
-        <div class="alert alert-warning text-center">No verified NGOs found within the selected radius.</div>
-        {% endfor %}
-    {% endif %}
+    </div>
 </div>
 {% endblock %}

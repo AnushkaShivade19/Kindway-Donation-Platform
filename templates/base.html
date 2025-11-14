@@ -11,10 +11,10 @@
     <style>
         /* Final Aesthetic Color Palette & Typography */
         :root {
-            --primary-green: #198754;
+            --primary-green: #198754; /* A deep, trustworthy green */
             --dark-green: #146c43;
-            --accent-orange: #fd7e14;
-            --light-bg: #f8f9fa;
+            --accent-orange: #fd7e14; /* A vibrant, action-oriented orange */
+            --light-bg: #f8f9fa;   /* Soft off-white for sections */
             --white: #FFFFFF;
             --dark-text: #212529;
             --secondary-text: #6c757d;
@@ -29,17 +29,18 @@
             font-family: var(--font-sans);
         }
         main { flex: 1; }
+        .navbar { box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
         .navbar-brand { font-weight: bold; font-size: 1.5rem; }
         .content-card {
             background-color: var(--white);
-            border-radius: 16px;
-            border: 1px solid #e9ecef;
-            box-shadow: 0 8px 30px rgba(0,0,0,0.05);
+            border-radius: 12px;
+            border: 1px solid #dee2e6;
+            box-shadow: none;
             transition: all 0.3s ease;
         }
         .content-card:hover {
+            box-shadow: 0 10px 30px rgba(0,0,0,0.07);
             transform: translateY(-5px);
-            box-shadow: 0 12px 35px rgba(0,0,0,0.08);
         }
         .text-primary { color: var(--primary-green) !important; }
         .text-accent { color: var(--accent-orange) !important; }
@@ -63,6 +64,8 @@
         .btn-accent:hover { background-color: #e86e0c; border-color: #e86e0c; }
         .btn-outline-primary { color: var(--primary-green); border-color: var(--primary-green); box-shadow: none; }
         .btn-outline-primary:hover { background-color: var(--primary-green); color: var(--white); }
+        .btn-outline-dark { border-color: #ccc; color: var(--dark-text); box-shadow: none; }
+        .btn-outline-dark:hover { background-color: var(--dark-text); color: var(--white); }
 
         /* Animation Styles */
         .animate-on-scroll { opacity: 0; transform: translateY(30px); transition: opacity 0.8s ease-out, transform 0.8s ease-out; }

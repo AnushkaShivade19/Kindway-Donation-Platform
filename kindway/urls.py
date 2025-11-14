@@ -16,12 +16,7 @@ urlpatterns = [
     path('accounts/', include('allauth.urls')), 
 ]
 
-# --- THIS IS THE CRITICAL FIX ---
-# This block tells Django's development server how to serve both
-# STATIC files (your images, videos, css) and MEDIA files (user uploads).
+# --- THIS IS THE CRITICAL FIX for your images ---
 if settings.DEBUG:
-    # Add this line to serve your static files
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATICFILES_DIRS[0])
-    
-    # This line serves your media files
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -44,19 +44,19 @@
             </p>
         </div>
 
-        <div class="card-body p-4 chat-window">
-            <div class="d-flex flex-column">
-                {% for message in conversation.messages.all reversed %}
-                    <div class="message {% if message.sender == request.user %}message-sent{% else %}message-received{% endif %}">
-                        {{ message.content|linebreaksbr }}
-                        <div class="text-end mt-1" style="font-size: 0.75rem; opacity: 0.8;">
-                            {{ message.timestamp|date:"d M, H:i" }}
-                        </div>
-                    </div>
-                {% empty %}
-                    <p class="text-center text-muted">This is the beginning of your conversation.</p>
-                {% endfor %}
+       <div class="card-body p-4 chat-window">
+    
+        {% for message in messages %}
+            <div class="message {% if message.sender == request.user %}message-sent{% else %}message-received{% endif %}">
+                {{ message.content|linebreaksbr }}
+                <div class="text-end mt-1" style="font-size: 0.75rem; opacity: 0.8;">
+                    {{ message.timestamp|date:"d M, H:i" }}
+                </div>
             </div>
+        {% empty %}
+            <p class="text-center text-muted">This is the beginning of your conversation.</p>
+        {% endfor %}
+
         </div>
 
         <div class="card-footer bg-white">
@@ -77,6 +77,66 @@
     // Simple script to auto-scroll to the top (which is the bottom of the chat)
     const chatWindow = document.querySelector('.chat-window');
     chatWindow.scrollTop = 0;
+
+    // --- NEW POLLING SCRIPT ---
+
+    // Let's store the timestamp of the newest message (first in our list)
+    // We check if 'messages.0' exists to avoid errors on empty chats
+    let lastTimestamp = "{{ messages.0.timestamp.isoformat|default:'' }}";
+    if (lastTimestamp === '') {
+        // If chat is empty, just use the current time
+        lastTimestamp = new Date().toISOString();
+    }
+
+    // This function adds a new message to the chat window
+    function appendMessage(message) {
+        const messageDiv = document.createElement('div');
+        messageDiv.className = 'message message-received'; // All new messages are 'received'
+        
+        messageDiv.innerHTML = `
+            ${message.content}
+            <div class="text-end mt-1" style="font-size: 0.75rem; opacity: 0.8;">
+                ${message.timestamp}
+            </div>
+        `;
+        
+        // Use prepend() because in a column-reverse,
+        // "prepending" adds it to the visual bottom.
+        chatWindow.prepend(messageDiv);
+    }
+
+    // This function checks for new messages
+    async function fetchNewMessages() {
+        // We need to pass the conversation ID to the URL
+        const url = "{% url 'check_new_messages' conversation.id %}?timestamp=" + lastTimestamp;
+        
+        try {
+            const response = await fetch(url);
+            const data = await response.json();
+
+            if (data.messages && data.messages.length > 0) {
+                // Here is your "popup"
+                console.log(data.messages.length + " new message(s)!"); 
+                // You could use a proper toast/alert library here
+
+                data.messages.forEach(msg => {
+                    appendMessage(msg);
+                });
+
+                // Update the last timestamp to the newest message received
+                // A more robust way: get timestamp from the last message in the JSON
+                let newestMessage = data.messages[data.messages.length - 1];
+                // We'd need the view to send the isoformat timestamp to use this properly
+                // For now, just updating to "now" is simpler
+                lastTimestamp = new Date().toISOString();
+            }
+        } catch (error) {
+            console.error('Error fetching new messages:', error);
+        }
+    }
+
+    // Poll the server every 5 seconds (5000 milliseconds)
+    setInterval(fetchNewMessages, 5000);
 </script>
 
 {% endblock %}

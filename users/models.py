@@ -49,7 +49,7 @@ class NGOProfile(models.Model):
 class DonorProfile(models.Model):
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, primary_key=True)
     full_name = models.CharField(max_length=255)
-    phone_number = models.CharField(max_length=15, blank=True)
+    phone_number = models.CharField(max_length=20, blank=True)
     
     # --- Add these new fields ---
     pincode = models.CharField(max_length=10, blank=True, null=True)

@@ -37,4 +37,7 @@ urlpatterns = [
     # 8. /donations/fulfill/<request_id>/
     # The page for a donor to respond to a specific "need" from an NGO.
     path('fulfill/<int:request_id>/', views.fulfill_ngo_request, name='fulfill_ngo_request'),
+
+    path('donate/to/<int:ngo_id>/', views.donate_to_ngo_view, name='donate_to_ngo'),
+    path('ngo/<int:ngo_id>/requests/', views.view_ngo_requests, name='view_ngo_requests'),
 ]

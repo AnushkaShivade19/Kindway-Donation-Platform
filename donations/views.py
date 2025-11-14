@@ -1,5 +1,3 @@
-# donations/views.py
-
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -14,7 +12,8 @@ from users.models import CustomUser, DonorProfile
 def offer_donation_flow(request):
     """Handles the 2-step process for a donor to offer an item to a specific NGO."""
     nearby_ngos = []
-    context = {'state': 'initial_form'} # Determines which part of the template to show
+    other_ngos = []  # A list for NGOs that are far away or un-sortable
+    context = {'state': 'initial_form'}
 
     if request.method == 'POST':
         form = DirectDonationOfferForm(request.POST, request.FILES)
@@ -26,38 +25,61 @@ def offer_donation_flow(request):
                 'category_id': form.cleaned_data['category'].id,
                 'delivery_type': form.cleaned_data['delivery_type'],
             }
+            # Note: Storing image in session is tricky. This flow assumes
+            # you are re-uploading or handling it differently.
+            # For simplicity, we'll skip the image in the session for now.
 
-            # Step 2: Find nearby NGOs based on the donor's location and item category
+            # Step 2: Try to get donor's location (but don't require it)
+            donor_coords = None
             try:
                 donor_profile = request.user.donorprofile
-                if not (donor_profile.latitude and donor_profile.longitude):
-                    messages.error(request, "Please set your pincode in your profile to find nearby NGOs.")
-                    return redirect('edit_donor_profile')
-                donor_coords = (donor_profile.latitude, donor_profile.longitude)
+                if donor_profile.latitude and donor_profile.longitude:
+                    donor_coords = (donor_profile.latitude, donor_profile.longitude)
+                else:
+                    # Add a message if pincode is missing, but don't block
+                    messages.info(request, "Set your pincode in your profile to see nearby NGOs first.")
             except DonorProfile.DoesNotExist:
                 messages.error(request, "Please complete your profile to proceed.")
-                return redirect('edit_donor_profile')
+                return redirect('edit_donor_profile') # Still block if no profile at all
 
             category = form.cleaned_data['category']
             relevant_ngos = CustomUser.objects.filter(
                 user_type='NGO',
                 ngoprofile__verification_status='VERIFIED',
                 ngoprofile__accepted_categories=category,
-                ngoprofile__latitude__isnull=False
+                ngoprofile__latitude__isnull=False # Ensure NGO has a location
             ).distinct()
 
-            for ngo_user in relevant_ngos:
-                ngo_coords = (ngo_user.ngoprofile.latitude, ngo_user.ngoprofile.longitude)
-                distance = great_circle(donor_coords, ngo_coords).km
-                if distance <= 50: # 50km radius
-                    nearby_ngos.append({'user': ngo_user, 'distance': round(distance, 1)})
+            if donor_coords:
+                # --- Location is known: Sort into "nearby" and "other" ---
+                for ngo_user in relevant_ngos:
+                    ngo_coords = (ngo_user.ngoprofile.latitude, ngo_user.ngoprofile.longitude)
+                    distance = great_circle(donor_coords, ngo_coords).km
+                    ngo_data = {'user': ngo_user, 'distance': round(distance, 1)}
+                    
+                    if distance <= 50: # 50km radius
+                        nearby_ngos.append(ngo_data)
+                    else:
+                        other_ngos.append(ngo_data)
+                
+                # Sort both lists by distance
+                nearby_ngos.sort(key=lambda x: x['distance'])
+                other_ngos.sort(key=lambda x: x['distance'])
             
-            nearby_ngos.sort(key=lambda x: x['distance'])
+            else:
+                # --- Location is unknown: Put all NGOs in "other" list ---
+                for ngo_user in relevant_ngos:
+                    # No distance to calculate
+                    other_ngos.append({'user': ngo_user, 'distance': None})
+                
+                # Sort by name as a fallback
+                other_ngos.sort(key=lambda x: x['user'].ngoprofile.ngo_name)
 
-            # Step 3: Update template context to show the list of NGOs
+            # Step 3: Update template context
             context['state'] = 'show_ngos'
             context['nearby_ngos'] = nearby_ngos
-            context['form'] = form
+            context['other_ngos'] = other_ngos
+            context['form'] = form # Pass the form again for display
 
     else: # GET request
         form = DirectDonationOfferForm()
@@ -84,6 +106,8 @@ def send_offer_to_ngo(request, ngo_id):
         messages.success(request, f"Your donation offer has been sent to {ngo.ngoprofile.ngo_name}!")
         return redirect('dashboard')
     
+    # If session data is gone or it's a GET request, send back to start
+    messages.error(request, "Your session expired. Please start the offer again.")
     return redirect('offer_donation_flow')
 
 
@@ -107,9 +131,10 @@ def offer_detail(request, offer_id):
 @login_required
 def ngo_offer_list(request):
     """Shows a verified NGO a list of donation offers they have received."""
-    if not (request.user.user_type == 'NGO' and request.user.ngoprofile.verification_status == 'VERIFIED'):
+    if not (request.user.user_type == 'NGO' and hasattr(request.user, 'ngoprofile') and request.user.ngoprofile.verification_status == 'VERIFIED'):
         messages.error(request, "You do not have permission to view this page.")
         return redirect('dashboard')
+    
     received_offers = DonationOffer.objects.filter(ngo=request.user).order_by('-created_at')
     return render(request, 'donations/ngo_offer_list.html', {'received_offers': received_offers})
 
@@ -138,7 +163,7 @@ def update_offer_status(request, offer_id, new_status):
 @login_required
 def create_ngo_request(request):
     """Allows a verified NGO to post a specific "need" to the platform."""
-    if not (request.user.user_type == 'NGO' and request.user.ngoprofile.verification_status == 'VERIFIED'):
+    if not (request.user.user_type == 'NGO' and hasattr(request.user, 'ngoprofile') and request.user.ngoprofile.verification_status == 'VERIFIED'):
         messages.error(request, "Only verified NGOs can post requests.")
         return redirect('dashboard')
 
@@ -175,3 +200,48 @@ def fulfill_ngo_request(request, request_id):
         form = DirectDonationOfferForm(initial=initial_data)
     
     return render(request, 'donations/fulfill_request.html', {'form': form, 'ngo_request': ngo_request})
+
+
+# --- ADD THESE TWO VIEWS ---
+
+@login_required
+def donate_to_ngo_view(request, ngo_id):
+    """
+    Shows a form for a donor to donate directly to a specific NGO
+    (from the search_ngo page).
+    """
+    ngo = get_object_or_404(CustomUser, id=ngo_id, user_type='NGO')
+
+    if request.method == 'POST':
+        form = DirectDonationOfferForm(request.POST, request.FILES)
+        if form.is_valid():
+            offer = form.save(commit=False)
+            offer.donor = request.user
+            offer.ngo = ngo # Set the NGO directly
+            offer.save()
+            messages.success(request, f"Your offer has been sent to {ngo.ngoprofile.ngo_name}!")
+            return redirect('dashboard')
+    else:
+        # Pre-populate the title to make it clear
+        initial_data = {'title': f"Donation for {ngo.ngoprofile.ngo_name}"}
+        form = DirectDonationOfferForm(initial=initial_data)
+    
+    return render(request, 'donations/donate_to_ngo.html', {'form': form, 'ngo': ngo})
+
+
+@login_required
+def view_ngo_requests(request, ngo_id):
+    """
+    Shows a list of all active requests from a single NGO
+    (from the search_ngo page).
+    """
+    ngo = get_object_or_404(CustomUser, id=ngo_id, user_type='NGO')
+    ngo_requests = NGORequest.objects.filter(
+        ngo=ngo, 
+        is_active=True
+    ).order_by('-created_at')
+    
+    return render(request, 'donations/view_ngo_requests.html', {
+        'ngo': ngo, 
+        'ngo_requests': ngo_requests
+    })

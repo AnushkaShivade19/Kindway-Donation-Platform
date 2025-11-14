@@ -15,8 +15,8 @@ DEBUG = True
 import os
 
 ALLOWED_HOSTS = [
-    '.vercel.app',        # allow all vercel subdomains
-    '127.0.0.1',          # local testing
+    '.vercel.app',      # allow all vercel subdomains
+    '127.0.0.1',        # local testing
     'localhost',
 ]
 
@@ -49,8 +49,8 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',
-  
+    #'whitenoise.middleware.WhiteNoiseMiddleware',
+ 
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
 
@@ -60,11 +60,16 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
-SITE_ID = 1
+
+# This Site ID must match the one in your Django Admin
+SITE_ID = 3
 
 ROOT_URLCONF = 'kindway.urls'
 
-TEMPLATES = [ { 'BACKEND': 'django.template.backends.django.DjangoTemplates', 'DIRS': [os.path.join(BASE_DIR, 'templates')], 'APP_DIRS': True, 'OPTIONS': { 'context_processors': [ 'django.template.context_processors.debug', 'django.template.context_processors.request', 'django.contrib.auth.context_processors.auth', 'django.contrib.messages.context_processors.messages', ], }, }, ]
+TEMPLATES = [ { 'BACKEND': 'django.template.backends.django.DjangoTemplates', 
+                'DIRS': [os.path.join(BASE_DIR, 'templates')], 
+                'APP_DIRS': True,
+                'OPTIONS': { 'context_processors': [ 'django.template.context_processors.debug', 'django.template.context_processors.request', 'django.contrib.auth.context_processors.auth', 'django.contrib.messages.context_processors.messages', ], }, }, ]
 
 WSGI_APPLICATION = 'kindway.wsgi.application'
 
@@ -79,24 +84,32 @@ DATABASES = {
 
 CSRF_TRUSTED_ORIGINS = ['https://*.vercel.app']
 
+# --- Allauth & Users Configuration ---
 AUTH_USER_MODEL = 'users.CustomUser'
-AUTHENTICATION_BACKENDS = ['django.contrib.auth.backends.ModelBackend', 'allauth.account.auth_backends.AuthenticationBackend']
-SITE_ID = 1
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend', 
+    'allauth.account.auth_backends.AuthenticationBackend'
+]
+
 LOGIN_REDIRECT_URL = 'dashboard'
 LOGOUT_REDIRECT_URL = 'index'
+AUTH_USER_MODEL = 'users.CustomUser'
+SOCIALACCOUNT_EMAIL_AUTHENTICATION = True
 ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_USERNAME_REQUIRED = False
 ACCOUNT_AUTHENTICATION_METHOD = 'email'
-ACCOUNT_EMAIL_VERIFICATION = 'optional'
-SOCIALACCOUNT_ADAPTER = 'users.adapters.CustomSocialAccountAdapter'
+ACCOUNT_EMAIL_VERIFICATION = 'none' # Set to 'none' for auto-login, was 'optional'
+SOCIALACCOUNT_AUTO_SIGNUP = True
 SOCIALACCOUNT_LOGIN_ON_GET = True
 ACCOUNT_LOGOUT_ON_GET = True
+SOCIALACCOUNT_ALLOW_LOGIN_AS_STAFF = True
 
-SOCIALACCOUNT_PROVIDERS = { 'google': { 'SCOPE': ['profile', 'email'], 'AUTH_PARAMS': {'access_type': 'online'} } }
+#SOCIALACCOUNT_PROVIDERS = { 'google': { 'SCOPE': ['profile', 'email'], 'AUTH_PARAMS': {'access_type': 'online'} } }
 
+# --- Internationalization ---
 LANGUAGE_CODE = 'en-us'
 TIME_ZONE = 'UTC'
-USE_I18N = True
+USE_I_18N = True
 USE_TZ = True
 
 # --- STATIC & MEDIA FILES ---
@@ -106,6 +119,7 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
 # This is for WhiteNoise IN PRODUCTION ONLY
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
@@ -118,4 +132,5 @@ EMAIL_HOST_USER = 'apikey'
 EMAIL_HOST_PASSWORD = os.getenv('SENDGRID_API_KEY')
 DEFAULT_FROM_EMAIL = os.getenv('EMAIL_HOST_USER', 'shivadeanushka003@gmail.com') 
 
+# --- Database ---
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
