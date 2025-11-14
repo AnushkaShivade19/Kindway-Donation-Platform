@@ -1,8 +1,18 @@
 #!/bin/bash
-set -o errexit
 
-# pip install is in the UI
-# migrate is done manually
+# --- Build Script for Vercel ---
 
-# This is the only command that should be here
+# 1. Install all Python dependencies
+echo "Installing dependencies..."
+pip install -r requirements.txt
+
+# 2. Collect all static files
+# This gathers all static files (CSS, JS, images)
+# into the 'staticfiles' directory specified in settings.py
+echo "Collecting static files..."
 python manage.py collectstatic --noinput
+
+# 3. Apply database migrations
+# This runs 'migrate' on your Neon production database
+echo "Applying database migrations..."
+python manage.py migrate
