@@ -1,10 +1,9 @@
 #!/bin/bash
+# Exit on error
+set -o errexit
 
-# Install dependencies
-pip install -r requirements.txt
+# The 'pip install' command will be in the Vercel UI
+# The 'migrate' command must be run from your local machine
 
-# Run migrations
-python manage.py migrate --noinput
-
-# Collect static files
+# All this file does is collect static files for S3/Vercel
 python manage.py collectstatic --noinput
