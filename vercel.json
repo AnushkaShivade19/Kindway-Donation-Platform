@@ -20,11 +20,7 @@
   "routes": [
     {
       "src": "/static/(.*)",
-      "dest": "/static/$1"
-    },
-    {
-      "src": "/media/(.*)",
-      "dest": "https://<YOUR-S3-BUCKET-NAME>.s3.amazonaws.com/media/$1"
+      "dest": "/staticfiles/$1"
     },
     {
       "src": "/(.*)",
